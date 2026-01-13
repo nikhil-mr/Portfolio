@@ -168,65 +168,77 @@ const HomePage = () => {
 
       {/* Scroll Interaction Section */}
       <div ref={containerRef} className="h-[300vh] relative">
-        <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
-          <nav className="absolute top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-40 mix-blend-difference text-white">
-            <motion.div
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-2xl font-bold tracking-tighter"
+        <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row overflow-hidden">
+          {/* Left Zone - White Background */}
+          <div className="w-full md:w-1/2 h-full bg-white flex flex-col justify-center items-center relative p-8 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full md:w-[200%] flex justify-center z-50">
+              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-gray-400 uppercase whitespace-nowrap">
+                Digital Designer and Developer
+              </h1>
+            </div>
+
+            <div className="flex flex-col items-start gap-1 z-10">
+              <motion.h2
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="text-3xl md:text-5xl font-bold uppercase tracking-wide text-black"
+              >
+                Nikhil Mani Reji
+              </motion.h2>
+              <motion.span 
+                className="text-2xl md:text-4xl font-light text-gray-500"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                I am a
+              </motion.span>
+              
+              <div className="h-20 md:h-24 relative flex items-center w-full overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.h1
+                    key={roles[roleIndex]}
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: "-100%", opacity: 0 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute flex w-full text-4xl md:text-7xl font-black uppercase whitespace-nowrap text-black"
+                  >
+                    {roles[roleIndex]}
+                  </motion.h1>
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <motion.div 
+              className="absolute bottom-10 flex flex-col items-center gap-2 text-gray-400"
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
             >
-              LOGO
+              <span className="text-xs uppercase tracking-widest">Scroll Down</span>
+              <div className="w-px h-12 bg-gradient-to-b from-gray-400 to-transparent" />
             </motion.div>
-            <div className="flex gap-4 md:gap-8">
+          </div>
+
+          {/* Right Zone - Image Background */}
+          <div className="w-full md:w-1/2 h-full relative overflow-hidden">
+            <div className="absolute top-0 left-0 md:left-[-100%] w-full md:w-[200%] flex justify-center z-50 hidden md:flex">
+              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-white uppercase whitespace-nowrap">
+                Digital Designer and Developer
+              </h1>
+            </div>
+
+            <div className="absolute inset-0 bg-[url('/Myself.jpeg')] bg-cover bg-center" />
+            
+            {/* Navigation - Bottom Right Vertical */}
+            <nav className="absolute bottom-8 right-8 flex flex-col items-end gap-4 z-40 text-white">
               <FlipLink href="#">Home</FlipLink>
               <FlipLink href="#">About</FlipLink>
               <FlipLink href="#">Works</FlipLink>
               <FlipLink href="#">Content</FlipLink>
-            </div>
-          </nav>
-          <div className="flex flex-col items-center gap-1 z-10 w-full">
-            <motion.h2
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="text-3xl md:text-5xl font-bold uppercase tracking-wide text-white"
-            >
-              Nikhil Mani Reji
-            </motion.h2>
-            <motion.span 
-              className="text-2xl md:text-4xl font-light text-gray-400"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              I am a
-            </motion.span>
-            
-            <div className="h-20 md:h-24 relative flex items-center justify-center w-full overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.h1
-                  key={roles[roleIndex]}
-                  initial={{ y: "100%", opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: "-100%", opacity: 0 }}
-                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute flex justify-center w-full text-center text-4xl md:text-7xl font-black uppercase whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500"
-                >
-                  {roles[roleIndex]}
-                </motion.h1>
-              </AnimatePresence>
-            </div>
+            </nav>
           </div>
-
-          <motion.div 
-            className="absolute bottom-10 flex flex-col items-center gap-2 text-gray-500"
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-          >
-            <span className="text-xs uppercase tracking-widest">Scroll Down</span>
-            <div className="w-px h-12 bg-gradient-to-b from-gray-500 to-transparent" />
-          </motion.div>
         </div>
       </div>
 
