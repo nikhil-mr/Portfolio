@@ -171,9 +171,9 @@ const HomePage = () => {
         <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row overflow-hidden">
           {/* Left Zone - White Background */}
           <div className="w-full md:w-1/2 h-full bg-white flex flex-col justify-center items-center relative p-8 overflow-hidden">
-            <div className="absolute top-0 left-0 w-full md:w-[200%] flex justify-center z-50">
-              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-gray-400 uppercase whitespace-nowrap">
-                Digital Designer and Developer
+            <div className="absolute top-0 left-0 w-full md:w-[200%] flex justify-start z-50">
+              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-gray-600 uppercase text-left leading-[0.8]">
+                Digital Designer<br />and Developer
               </h1>
             </div>
 
@@ -223,9 +223,9 @@ const HomePage = () => {
 
           {/* Right Zone - Image Background */}
           <div className="w-full md:w-1/2 h-full relative overflow-hidden">
-            <div className="absolute top-0 left-0 md:left-[-100%] w-full md:w-[200%] flex justify-center z-50 hidden md:flex">
-              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-white uppercase whitespace-nowrap">
-                Digital Designer and Developer
+            <div className="absolute top-0 left-0 md:left-[-100%] w-full md:w-[200%] flex justify-start z-50 hidden md:flex">
+              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-white uppercase text-left leading-[0.8]">
+                Digital Designer<br />and Developer
               </h1>
             </div>
 
