@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useMotionValue, useTransform, MotionValue } from 'framer-motion';
-import { Menu } from 'lucide-react';
+import { Menu, ChevronRight } from 'lucide-react';
 
 export default function Portfolio() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
@@ -109,6 +109,99 @@ const IntroAnimation = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
+const AnimatedHamburgerIcon = ({ isOpen }: { isOpen: boolean }) => {
+  const common = {
+    className: "w-6 h-0.5 bg-black rounded-full absolute",
+    transition: { duration: 0.3, ease: "easeInOut" } as const,
+    initial: "closed",
+    animate: isOpen ? "open" : "closed",
+  };
+
+  return (
+    <div className="w-6 h-6 relative">
+      <motion.div
+        {...common}
+        variants={{
+          closed: { top: "20%", rotate: 0 },
+          open: { top: "50%", y: "-50%", rotate: 45 },
+        }}
+      />
+      <motion.div
+        {...common}
+        style={{ top: "50%", y: "-50%" }}
+        variants={{
+          closed: { opacity: 1 },
+          open: { opacity: 0 },
+        }}
+        transition={{ duration: 0.1 }}
+      />
+      <motion.div
+        {...common}
+        variants={{
+          closed: { bottom: "20%", rotate: 0 },
+          open: { bottom: "50%", y: "50%", rotate: -45 },
+        }}
+      />
+    </div>
+  );
+};
+
+const MenuLink = ({ children, href }: { children: string; href: string }) => {
+  return (
+    <Link href={href} className="text-xl font-semibold hover:text-purple-400 transition-colors uppercase tracking-widest">
+      {children}
+    </Link>
+  );
+};
+
+const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
+  const [isWorksHovered, setIsWorksHovered] = useState(false);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -20, x: 20 }}
+          animate={{ opacity: 1, y: 0, x: 0 }}
+          exit={{ opacity: 0, y: -20, x: 20 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="fixed top-28 right-6 z-50 bg-black/50 backdrop-blur-md p-6 rounded-2xl shadow-2xl text-white"
+        >
+          <nav className="flex flex-col items-start gap-5">
+            <MenuLink href="#">Home</MenuLink>
+            <MenuLink href="#">About</MenuLink>
+            <motion.div
+              className="relative flex items-center gap-2"
+              onHoverStart={() => setIsWorksHovered(true)}
+              onHoverEnd={() => setIsWorksHovered(false)}
+            >
+              <MenuLink href="#">Works</MenuLink>
+              <motion.div animate={{ x: isWorksHovered ? 3 : 0 }} transition={{ duration: 0.2 }}>
+                 <ChevronRight size={18} />
+              </motion.div>
+              <AnimatePresence>
+                {isWorksHovered && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2, delay: 0.1 }}
+                    className="absolute left-[120%] top-1/2 -translate-y-1/2 flex flex-col gap-3 whitespace-nowrap bg-black/30 p-4 rounded-xl"
+                  >
+                    <MenuLink href="#">Posters</MenuLink>
+                    <MenuLink href="#">Websites</MenuLink>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+            <MenuLink href="#">Content</MenuLink>
+          </nav>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -118,10 +211,13 @@ const HomePage = () => {
 
   const { scrollY } = useScroll();
   const [showHamburger, setShowHamburger] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (typeof window !== 'undefined') {
-      setShowHamburger(latest > window.innerHeight);
+      const shouldShow = latest > window.innerHeight;
+      setShowHamburger(shouldShow);
+      if (!shouldShow) setIsMenuOpen(false);
     }
   });
 
@@ -151,6 +247,7 @@ const HomePage = () => {
       transition={{ duration: 1 }}
       className="relative w-full"
     >
+      <NavMenu isOpen={isMenuOpen} />
       <AnimatePresence>
         {showHamburger && (
           <motion.button
@@ -159,9 +256,10 @@ const HomePage = () => {
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="fixed top-6 right-6 z-50 p-4 bg-white text-black rounded-full mix-blend-difference cursor-pointer"
           >
-            <Menu size={24} />
+            <AnimatedHamburgerIcon isOpen={isMenuOpen} />
           </motion.button>
         )}
       </AnimatePresence>
@@ -172,8 +270,8 @@ const HomePage = () => {
           {/* Left Zone - White Background */}
           <div className="w-full md:w-1/2 h-full bg-white flex flex-col justify-center items-center relative p-8 overflow-hidden">
             <div className="absolute top-0 left-0 w-full md:w-[200%] flex justify-start z-50">
-              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-gray-600 uppercase text-left leading-[0.8]">
-                Digital Designer<br />and Developer
+              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]">
+                Digital Designer<br />& Developer
               </h1>
             </div>
 
@@ -225,7 +323,7 @@ const HomePage = () => {
           <div className="w-full md:w-1/2 h-full relative overflow-hidden">
             <div className="absolute top-0 left-0 md:left-[-100%] w-full md:w-[200%] flex justify-start z-50 hidden md:flex">
               <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-white uppercase text-left leading-[0.8]">
-                Digital Designer<br />and Developer
+                Digital Designer<br />& Developer
               </h1>
             </div>
 
@@ -274,28 +372,6 @@ const HomePage = () => {
           <FullProjectsGrid onBack={() => setShowProjectsGrid(false)} />
         ) : (
           <>
-            <div className="flex flex-col gap-8 max-w-2xl w-full">
-              <AnimatePresence mode="wait">
-                {activeSection === 'text' && (
-                  <motion.h3
-                    key="text"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="text-3xl md:text-5xl leading-tight font-semibold"
-                  >
-                    Driving measurable growth and engagement through thoughtful design and engineering.
-                  </motion.h3>
-                )}
-                {activeSection === 'posters' && (
-                  <PosterGallery key="posters" onExpand={() => setShowPostersGrid(true)} />
-                )}
-                {activeSection === 'projects' && (
-                  <ProjectGallery key="projects" onExpand={() => setShowProjectsGrid(true)} />
-                )}
-              </AnimatePresence>
-            </div>
-
             <div className="flex flex-col gap-8 max-w-xl">
               <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
                 Every product I build starts with understanding user goals and translating them into intuitive, high-performance experiences. From concept to launch, I focus on meaningful results—boosting user engagement, retention, and overall business impact.
@@ -323,6 +399,27 @@ const HomePage = () => {
                   <span className="text-6xl md:text-8xl font-bold">1</span>
                 </div>
               </div>
+            </div>
+            <div className="flex flex-col gap-8 max-w-2xl w-full">
+              <AnimatePresence mode="wait">
+                {activeSection === 'text' && (
+                  <motion.h3
+                    key="text"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="text-3xl md:text-5xl leading-tight font-semibold"
+                  >
+                    Driving measurable growth and engagement through thoughtful design and engineering.
+                  </motion.h3>
+                )}
+                {activeSection === 'posters' && (
+                  <PosterGallery key="posters" onExpand={() => setShowPostersGrid(true)} />
+                )}
+                {activeSection === 'projects' && (
+                  <ProjectGallery key="projects" onExpand={() => setShowProjectsGrid(true)} />
+                )}
+              </AnimatePresence>
             </div>
           </>
         )}
@@ -406,7 +503,7 @@ const FlipLink = ({ children, href }: { children: string; href: string }) => {
       initial="initial"
       whileHover="hovered"
       href={href}
-      className="relative block overflow-hidden whitespace-nowrap text-sm font-bold uppercase md:text-base"
+      className="relative block overflow-hidden whitespace-nowrap text-2xl font-bold uppercase md:text-4xl"
       style={{ lineHeight: 0.9 }}
     >
       <div>
@@ -457,8 +554,8 @@ const Cursor = () => {
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
-      mouseX.set(e.clientX - 16);
-      mouseY.set(e.clientY - 16);
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
     };
     window.addEventListener("mousemove", moveCursor);
     return () => window.removeEventListener("mousemove", moveCursor);
@@ -466,9 +563,13 @@ const Cursor = () => {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 w-8 h-8 bg-white rounded-full pointer-events-none z-[100] mix-blend-difference"
+      className="fixed top-0 left-0 pointer-events-none z-[100] mix-blend-difference"
       style={{ x: mouseX, y: mouseY }}
-    />
+    >
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="white" style={{ shapeRendering: "crispEdges" }}>
+        <path d="M0 0L0 24L6 18L14 18L0 0Z" />
+      </svg>
+    </motion.div>
   );
 };
 
