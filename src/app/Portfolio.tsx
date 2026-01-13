@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useMotionValue, useTransform, MotionValue } from 'framer-motion';
+import { Menu } from 'lucide-react';
 
 export default function Portfolio() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
@@ -115,6 +116,15 @@ const HomePage = () => {
     offset: ["start start", "end end"],
   });
 
+  const { scrollY } = useScroll();
+  const [showHamburger, setShowHamburger] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (typeof window !== 'undefined') {
+      setShowHamburger(latest > window.innerHeight);
+    }
+  });
+
   const aboutRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: aboutProgress } = useScroll({
     target: aboutRef,
@@ -141,6 +151,21 @@ const HomePage = () => {
       transition={{ duration: 1 }}
       className="relative w-full"
     >
+      <AnimatePresence>
+        {showHamburger && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="fixed top-6 right-6 z-50 p-4 bg-white text-black rounded-full mix-blend-difference cursor-pointer"
+          >
+            <Menu size={24} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       {/* Scroll Interaction Section */}
       <div ref={containerRef} className="h-[300vh] relative">
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
