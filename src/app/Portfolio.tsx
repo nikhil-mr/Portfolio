@@ -166,8 +166,9 @@ const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
           exit={{ opacity: 0, y: -20, x: 20 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="fixed top-28 right-6 z-50 bg-black/50 backdrop-blur-md p-6 rounded-2xl shadow-2xl text-white"
+          onClick={(e) => e.stopPropagation()}
         >
-          <nav className="flex flex-col items-start gap-5">
+          <nav className="flex flex-col items-end gap-5">
             <MenuLink href="#">Home</MenuLink>
             <MenuLink href="#">About</MenuLink>
             <motion.div
@@ -182,11 +183,11 @@ const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
               <AnimatePresence>
                 {isWorksHovered && (
                   <motion.div
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
+                    exit={{ opacity: 0, x: 10 }}
                     transition={{ duration: 0.2, delay: 0.1 }}
-                    className="absolute left-[120%] top-1/2 -translate-y-1/2 flex flex-col gap-3 whitespace-nowrap bg-black/30 p-4 rounded-xl"
+                    className="absolute right-[120%] top-1/2 -translate-y-1/2 flex flex-col gap-3 whitespace-nowrap bg-black/30 p-4 rounded-xl"
                   >
                     <MenuLink href="#">Posters</MenuLink>
                     <MenuLink href="#">Websites</MenuLink>
@@ -213,6 +214,12 @@ const HomePage = () => {
   const [showHamburger, setShowHamburger] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  useEffect(() => {
+    const handleClickOutside = () => setIsMenuOpen(false);
+    if (isMenuOpen) window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [isMenuOpen]);
+
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (typeof window !== 'undefined') {
       const shouldShow = latest > window.innerHeight;
@@ -227,18 +234,9 @@ const HomePage = () => {
     offset: ["start start", "end end"],
   });
 
-  const [roleIndex, setRoleIndex] = useState(0);
-  const roles = ["Frontend Developer", "Designer", "Gamer"];
   const [activeSection, setActiveSection] = useState<'text' | 'posters' | 'projects'>('text');
   const [showPostersGrid, setShowPostersGrid] = useState(false);
   const [showProjectsGrid, setShowProjectsGrid] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRoleIndex((prev) => (prev + 1) % roles.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <motion.div
@@ -256,7 +254,10 @@ const HomePage = () => {
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMenuOpen(!isMenuOpen);
+            }}
             className="fixed top-6 right-6 z-50 p-4 bg-white text-black rounded-full mix-blend-difference cursor-pointer"
           >
             <AnimatedHamburgerIcon isOpen={isMenuOpen} />
@@ -275,37 +276,22 @@ const HomePage = () => {
               </h1>
             </div>
 
-            <div className="flex flex-col items-start gap-1 z-10">
-              <motion.h2
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="text-3xl md:text-5xl font-bold uppercase tracking-wide text-black"
-              >
-                Nikhil Mani Reji
-              </motion.h2>
-              <motion.span 
-                className="text-2xl md:text-4xl font-light text-gray-500"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.8 }}
-              >
-                I am a
-              </motion.span>
-              
-              <div className="h-20 md:h-24 relative flex items-center w-full overflow-hidden">
-                <AnimatePresence mode="wait">
-                  <motion.h1
-                    key={roles[roleIndex]}
-                    initial={{ y: "100%", opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: "-100%", opacity: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute flex w-full text-4xl md:text-7xl font-black uppercase whitespace-nowrap text-black"
-                  >
-                    {roles[roleIndex]}
-                  </motion.h1>
-                </AnimatePresence>
+            <div className="flex flex-col items-start gap-1 z-10 max-w-md">
+              <div className="flex items-start gap-3">
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                  transition={{ delay: 0.6, duration: 2, repeat: Infinity }}
+                  className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)] mt-3 shrink-0"
+                />
+                <motion.p
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-xl font-light text-gray-600 leading-relaxed"
+                >
+                  I am a passionate Frontend Developer and Digital Designer who blends artistic vision with technical precision. My work focuses on crafting engaging digital products that look exceptional and perform flawlessly across all devices.
+                </motion.p>
               </div>
             </div>
 
@@ -331,7 +317,6 @@ const HomePage = () => {
             
             {/* Navigation - Bottom Right Vertical */}
             <nav className="absolute bottom-8 right-8 flex flex-col items-end gap-4 z-40 text-white">
-              <FlipLink href="#">Home</FlipLink>
               <FlipLink href="#">About</FlipLink>
               <FlipLink href="#">Works</FlipLink>
               <FlipLink href="#">Content</FlipLink>
