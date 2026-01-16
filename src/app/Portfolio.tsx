@@ -234,6 +234,8 @@ const HomePage = () => {
     offset: ["start start", "end end"],
   });
 
+  const aboutBg = useTransform(aboutProgress, [0, 0.1], ["#FFFFFF", "#18181B"]);
+
   const [activeSection, setActiveSection] = useState<'text' | 'posters' | 'projects'>('text');
   const [showPostersGrid, setShowPostersGrid] = useState(false);
   const [showProjectsGrid, setShowProjectsGrid] = useState(false);
@@ -296,12 +298,19 @@ const HomePage = () => {
             </div>
 
             <motion.div 
-              className="absolute bottom-10 flex flex-col items-center gap-2 text-gray-400"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 2 }}
+              className="absolute bottom-12 flex flex-col items-center gap-3 z-20"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.8 }}
             >
-              <span className="text-xs uppercase tracking-widest">Scroll Down</span>
-              <div className="w-px h-12 bg-gradient-to-b from-gray-400 to-transparent" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/30">Scroll</span>
+              <div className="w-[1px] h-12 bg-black/10 relative overflow-hidden">
+                <motion.div 
+                  className="absolute top-0 left-0 w-full h-1/2 bg-black"
+                  animate={{ top: ["-100%", "100%"] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
             </motion.div>
           </div>
 
@@ -326,7 +335,7 @@ const HomePage = () => {
       </div>
 
       {/* About Section */}
-      <div ref={aboutRef} className="relative h-[250vh] bg-zinc-900 rounded-t-[80px] md:rounded-t-[120px] z-20">
+      <motion.div ref={aboutRef} style={{ backgroundColor: aboutBg }} className="relative h-[250vh] z-20">
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center p-8 md:p-20 gap-12">
           <TypingText 
             text="I'm Nikhil—a frontend developer crafting fast, scalable, and immersive digital experiences that merge creativity with engineering precision. I specialize in Html, Css, JavaScript, and React." 
@@ -347,7 +356,7 @@ const HomePage = () => {
             About Me
           </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats / Philosophy Section */}
       <div className="min-h-screen bg-white rounded-t-[80px] md:rounded-t-[120px] flex flex-col md:flex-row justify-between items-start p-8 md:p-20 gap-12 z-30 relative text-black">
@@ -575,8 +584,8 @@ const TypingText = ({ text, progress, range }: { text: string; progress: MotionV
 };
 
 const Char = ({ char, progress, range }: { char: string; progress: MotionValue<number>; range: [number, number] }) => {
-  const color = useTransform(progress, range, ["#52525b", "#ffffff"]);
-  return <motion.span style={{ color }}>{char}</motion.span>;
+  const opacity = useTransform(progress, range, [0, 1]);
+  return <motion.span style={{ opacity }}>{char}</motion.span>;
 };
 
 const PosterGallery = ({ onExpand }: { onExpand: () => void }) => {
