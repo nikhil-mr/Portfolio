@@ -240,6 +240,27 @@ const HomePage = () => {
   const [showPostersGrid, setShowPostersGrid] = useState(false);
   const [showProjectsGrid, setShowProjectsGrid] = useState(false);
 
+  const statsRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: statsProgress } = useScroll({
+    target: statsRef,
+    offset: ["start start", "end end"],
+  });
+
+  const textOpacity = useTransform(statsProgress, [0.05, 0.2], [0, 1]);
+  const textY = useTransform(statsProgress, [0.05, 0.2], [20, 0]);
+
+  const stat1Opacity = useTransform(statsProgress, [0.25, 0.35], [0, 1]);
+  const stat1Y = useTransform(statsProgress, [0.25, 0.35], [50, 0]);
+
+  const stat2Opacity = useTransform(statsProgress, [0.4, 0.5], [0, 1]);
+  const stat2Y = useTransform(statsProgress, [0.4, 0.5], [50, 0]);
+
+  const stat3Opacity = useTransform(statsProgress, [0.55, 0.65], [0, 1]);
+  const stat3Y = useTransform(statsProgress, [0.55, 0.65], [50, 0]);
+
+  const rightOpacity = useTransform(statsProgress, [0.7, 0.8], [0, 1]);
+  const rightY = useTransform(statsProgress, [0.7, 0.8], [20, 0]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -359,7 +380,15 @@ const HomePage = () => {
       </motion.div>
 
       {/* Stats / Philosophy Section */}
-      <div className="min-h-screen bg-white rounded-t-[80px] md:rounded-t-[120px] flex flex-col md:flex-row justify-between items-start p-8 md:p-20 gap-12 z-30 relative text-black">
+      <div 
+        ref={statsRef}
+        className={`bg-white rounded-t-[80px] md:rounded-t-[120px] z-30 relative text-black ${
+          !showPostersGrid && !showProjectsGrid ? "h-[300vh]" : "min-h-screen"
+        }`}
+      >
+        <div className={`${
+          !showPostersGrid && !showProjectsGrid ? "sticky top-0 h-screen" : ""
+        } flex flex-col md:flex-row justify-between items-start p-8 md:p-20 gap-12`}>
         {showPostersGrid ? (
           <FullPostersGrid onBack={() => setShowPostersGrid(false)} />
         ) : showProjectsGrid ? (
@@ -367,34 +396,57 @@ const HomePage = () => {
         ) : (
           <>
             <div className="flex flex-col gap-8 max-w-xl">
-              <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+              <motion.p 
+                style={{ opacity: textOpacity, y: textY }}
+                className="text-lg md:text-xl text-gray-700 leading-relaxed"
+              >
                 Every product I build starts with understanding user goals and translating them into intuitive, high-performance experiences. From concept to launch, I focus on meaningful results—boosting user engagement, retention, and overall business impact.
-              </p>
+              </motion.p>
               <div className="flex flex-col gap-4 w-full">
-                <div className="h-px w-full bg-black/20" />
-                <div 
-                  className="flex flex-col cursor-pointer group"
-                  onClick={() => setActiveSection(activeSection === 'posters' ? 'text' : 'posters')}
+                <motion.div
+                  style={{ opacity: stat1Opacity, y: stat1Y }}
+                  className="flex flex-col gap-4"
                 >
-                  <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">posters designed</span>
-                  <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">30+</span>
-                </div>
-                <div className="h-px w-full bg-black/20" />
-                <div 
-                  className="flex flex-col cursor-pointer group"
-                  onClick={() => setActiveSection(activeSection === 'projects' ? 'text' : 'projects')}
+                  <div className="h-px w-full bg-black/20" />
+                  <div 
+                    className="flex flex-col cursor-pointer group"
+                    onClick={() => setActiveSection(activeSection === 'posters' ? 'text' : 'posters')}
+                  >
+                    <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">posters designed</span>
+                    <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">30+</span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  style={{ opacity: stat2Opacity, y: stat2Y }}
+                  className="flex flex-col gap-4"
                 >
-                  <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">project completed</span>
-                  <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">5+</span>
-                </div>
-                <div className="h-px w-full bg-black/20" />
-                <div className="flex flex-col">
-                  <span className="text-sm text-gray-500 uppercase tracking-widest">years of experience</span>
-                  <span className="text-6xl md:text-8xl font-bold">1</span>
-                </div>
+                  <div className="h-px w-full bg-black/20" />
+                  <div 
+                    className="flex flex-col cursor-pointer group"
+                    onClick={() => setActiveSection(activeSection === 'projects' ? 'text' : 'projects')}
+                  >
+                    <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">project completed</span>
+                    <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">5+</span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  style={{ opacity: stat3Opacity, y: stat3Y }}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="h-px w-full bg-black/20" />
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 uppercase tracking-widest">years of experience</span>
+                    <span className="text-6xl md:text-8xl font-bold">1</span>
+                  </div>
+                </motion.div>
               </div>
             </div>
-            <div className="flex flex-col gap-8 max-w-2xl w-full">
+            <motion.div 
+              style={{ opacity: rightOpacity, y: rightY }}
+              className="flex flex-col gap-8 max-w-2xl w-full"
+            >
               <AnimatePresence mode="wait">
                 {activeSection === 'text' && (
                   <motion.h3
@@ -414,9 +466,10 @@ const HomePage = () => {
                   <ProjectGallery key="projects" onExpand={() => setShowProjectsGrid(true)} />
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
           </>
         )}
+        </div>
       </div>
 
       {/* Contact Section */}
