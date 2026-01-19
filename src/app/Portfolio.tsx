@@ -236,7 +236,7 @@ const HomePage = () => {
 
   const aboutBg = useTransform(aboutProgress, [0, 0.1], ["#FFFFFF", "#18181B"]);
 
-  const [activeSection, setActiveSection] = useState<'text' | 'posters' | 'projects'>('text');
+  const [activeSection, setActiveSection] = useState<'intro' | 'text' | 'posters' | 'projects'>('intro');
   const [showPostersGrid, setShowPostersGrid] = useState(false);
   const [showProjectsGrid, setShowProjectsGrid] = useState(false);
 
@@ -249,17 +249,29 @@ const HomePage = () => {
   const textOpacity = useTransform(statsProgress, [0.05, 0.2], [0, 1]);
   const textY = useTransform(statsProgress, [0.05, 0.2], [20, 0]);
 
-  const stat1Opacity = useTransform(statsProgress, [0.25, 0.35], [0, 1]);
-  const stat1Y = useTransform(statsProgress, [0.25, 0.35], [50, 0]);
+  const stat1Opacity = useTransform(statsProgress, [0.15, 0.2], [0, 1]);
+  const stat1Y = useTransform(statsProgress, [0.15, 0.2], [50, 0]);
 
-  const stat2Opacity = useTransform(statsProgress, [0.4, 0.5], [0, 1]);
-  const stat2Y = useTransform(statsProgress, [0.4, 0.5], [50, 0]);
+  const stat2Opacity = useTransform(statsProgress, [0.5, 0.55], [0, 1]);
+  const stat2Y = useTransform(statsProgress, [0.5, 0.55], [50, 0]);
 
-  const stat3Opacity = useTransform(statsProgress, [0.55, 0.65], [0, 1]);
-  const stat3Y = useTransform(statsProgress, [0.55, 0.65], [50, 0]);
+  const stat3Opacity = useTransform(statsProgress, [0.85, 0.9], [0, 1]);
+  const stat3Y = useTransform(statsProgress, [0.85, 0.9], [50, 0]);
 
-  const rightOpacity = useTransform(statsProgress, [0.7, 0.8], [0, 1]);
-  const rightY = useTransform(statsProgress, [0.7, 0.8], [20, 0]);
+  const rightOpacity = useTransform(statsProgress, [0.05, 0.2], [0, 1]);
+  const rightY = useTransform(statsProgress, [0.05, 0.2, 1], [20, 0, -50]);
+
+  useMotionValueEvent(statsProgress, "change", (latest) => {
+    if (latest < 0.2) {
+      setActiveSection('intro');
+    } else if (latest < 0.55) {
+      setActiveSection('posters');
+    } else if (latest < 0.85) {
+      setActiveSection('projects');
+    } else {
+      setActiveSection('text');
+    }
+  });
 
   return (
     <motion.div
@@ -383,7 +395,7 @@ const HomePage = () => {
       <div 
         ref={statsRef}
         className={`bg-white rounded-t-[80px] md:rounded-t-[120px] z-30 relative text-black ${
-          !showPostersGrid && !showProjectsGrid ? "h-[300vh]" : "min-h-screen"
+          !showPostersGrid && !showProjectsGrid ? "h-[450vh]" : "min-h-screen"
         }`}
       >
         <div className={`${
@@ -460,10 +472,10 @@ const HomePage = () => {
                   </motion.h3>
                 )}
                 {activeSection === 'posters' && (
-                  <PosterGallery key="posters" onExpand={() => setShowPostersGrid(true)} />
+                  <PosterGallery key="posters" onExpand={() => setShowPostersGrid(true)} scrollProgress={statsProgress} range={[0.2, 0.5]} />
                 )}
                 {activeSection === 'projects' && (
-                  <ProjectGallery key="projects" onExpand={() => setShowProjectsGrid(true)} />
+                  <ProjectGallery key="projects" onExpand={() => setShowProjectsGrid(true)} scrollProgress={statsProgress} range={[0.55, 0.85]} />
                 )}
               </AnimatePresence>
             </motion.div>
@@ -503,7 +515,7 @@ const HomePage = () => {
   );
 };
 
-const ProjectGallery = ({ onExpand }: { onExpand: () => void }) => {
+const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => void; scrollProgress: MotionValue<number>; range: [number, number] }) => {
   const projects = [
     "/website_pics/jalam.png",
     "/website_pics/portfolio.png",
@@ -512,31 +524,22 @@ const ProjectGallery = ({ onExpand }: { onExpand: () => void }) => {
     "/website_pics/quiz.png",
   ];
 
+  const y = useTransform(scrollProgress, range, ["0%", "-50%"]);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="w-full h-[80vh] overflow-hidden relative rounded-2xl bg-gray-100 shadow-inner"
+      className="w-full h-[90vh] overflow-hidden relative rounded-2xl"
     >
-      <style>
-        {`
-          @keyframes scrollUpProjects {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-          }
-          .project-scroll {
-            animation: scrollUpProjects 20s linear infinite;
-          }
-        `}
-      </style>
-      <div className="project-scroll flex flex-col gap-4 p-4">
+      <motion.div style={{ y }} className="flex flex-col gap-4 px-4 py-0">
         {[...projects, ...projects].map((src, i) => (
           <div key={i} onClick={onExpand} className="w-full flex-shrink-0 block cursor-pointer">
             <img src={src} alt={`Project ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
           </div>
         ))}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
@@ -641,7 +644,7 @@ const Char = ({ char, progress, range }: { char: string; progress: MotionValue<n
   return <motion.span style={{ opacity }}>{char}</motion.span>;
 };
 
-const PosterGallery = ({ onExpand }: { onExpand: () => void }) => {
+const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => void; scrollProgress: MotionValue<number>; range: [number, number] }) => {
   const posters = [
     "/posters/1.png",
     "/posters/2.png",
@@ -664,31 +667,22 @@ const PosterGallery = ({ onExpand }: { onExpand: () => void }) => {
     onExpand();
   };
 
+  const y = useTransform(scrollProgress, range, ["0%", "-50%"]);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="w-full h-[80vh] overflow-hidden relative rounded-2xl bg-gray-100 shadow-inner"
+      className="w-[80%] mx-auto h-[90vh] overflow-hidden relative rounded-2xl"
     >
-      <style>
-        {`
-          @keyframes scrollUp {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-          }
-          .poster-scroll {
-            animation: scrollUp 20s linear infinite;
-          }
-        `}
-      </style>
-      <div className="poster-scroll grid grid-cols-2 gap-4 p-4">
+      <motion.div style={{ y }} className="grid grid-cols-1 gap-4 px-4 py-0">
         {[...posters, ...posters].map((src, i) => (
           <div key={i} onClick={handlePosterClick} className="w-full flex-shrink-0 block cursor-pointer">
             <img src={src} alt={`Poster ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
           </div>
         ))}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
