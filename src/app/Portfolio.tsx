@@ -203,6 +203,24 @@ const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
   );
 };
 
+const CharacterTypingEffect = ({ text, delay }: { text: string; delay: number }) => {
+  const characters = text.split("");
+  return (
+    <p className="text-xl font-light text-gray-600 leading-relaxed">
+      {characters.map((char, index) => (
+        <motion.span
+          key={index}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: delay + index * 0.015, duration: 0 }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </p>
+  );
+};
+
 const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -306,9 +324,14 @@ const HomePage = () => {
           {/* Left Zone - White Background */}
           <div className="w-full md:w-1/2 h-full bg-white flex flex-col justify-center items-center relative p-8 overflow-hidden">
             <div className="absolute top-0 left-0 w-full md:w-[200%] flex justify-start z-50">
-              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]">
+              <motion.h1 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
+                className="text-4xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]"
+              >
                 Digital Designer<br />& Developer
-              </h1>
+              </motion.h1>
             </div>
 
             <div className="flex flex-col items-start gap-1 z-10 max-w-md">
@@ -319,14 +342,10 @@ const HomePage = () => {
                   transition={{ delay: 0.6, duration: 2, repeat: Infinity }}
                   className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)] mt-3 shrink-0"
                 />
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-xl font-light text-gray-600 leading-relaxed"
-                >
-                  I am a passionate Frontend Developer and Digital Designer who blends artistic vision with technical precision. My work focuses on crafting engaging digital products that look exceptional and perform flawlessly across all devices.
-                </motion.p>
+                <CharacterTypingEffect 
+                  text="I am a passionate Frontend Developer and Digital Designer who blends artistic vision with technical precision. My work focuses on crafting engaging digital products that look exceptional and perform flawlessly across all devices."
+                  delay={1.2}
+                />
               </div>
             </div>
 
@@ -350,9 +369,14 @@ const HomePage = () => {
           {/* Right Zone - Image Background */}
           <div className="w-full md:w-1/2 h-full relative overflow-hidden">
             <div className="absolute top-0 left-0 md:left-[-100%] w-full md:w-[200%] flex justify-start z-50 hidden md:flex">
-              <h1 className="text-4xl md:text-[10vw] font-bold tracking-tighter text-white uppercase text-left leading-[0.8]">
+              <motion.h1 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
+                className="text-4xl md:text-[10vw] font-bold tracking-tighter text-white uppercase text-left leading-[0.8]"
+              >
                 Digital Designer<br />& Developer
-              </h1>
+              </motion.h1>
             </div>
 
             <div className="absolute inset-0 bg-[url('/Myself.jpeg')] bg-cover bg-center" />
