@@ -539,16 +539,51 @@ const HomePage = () => {
   );
 };
 
+const ProjectItem = ({ 
+  project, 
+  index, 
+  onExpand, 
+  scrollProgress, 
+  range, 
+  total 
+}: { 
+  project: { id: number; name: string; tools: string[] }; 
+  index: number; 
+  onExpand: () => void; 
+  scrollProgress: MotionValue<number>; 
+  range: [number, number]; 
+  total: number; 
+}) => {
+  const step = (range[1] - range[0]) / total;
+  const start = range[0] + index * step;
+  
+  const opacity = useTransform(scrollProgress, [start, start + step * 0.6], [0, 1]);
+  const y = useTransform(scrollProgress, [start, start + step * 0.6], [50, 0]);
+
+  return (
+    <motion.div
+      style={{ opacity, y }}
+      onClick={onExpand}
+      className="w-full flex-shrink-0 block cursor-pointer bg-zinc-100 p-8 rounded-lg shadow-sm hover:bg-zinc-200 transition-colors group"
+    >
+      <h3 className="text-3xl md:text-4xl font-bold text-black uppercase mb-2 group-hover:text-purple-600 transition-colors">
+        {String(project.id).padStart(2, '0')} - {project.name}
+      </h3>
+      <p className="text-gray-600 text-sm md:text-base uppercase tracking-widest">
+        Tools Used - {project.tools.join(", ")}
+      </p>
+    </motion.div>
+  );
+};
+
 const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => void; scrollProgress: MotionValue<number>; range: [number, number] }) => {
   const projects = [
-    "/website_pics/jalam.png",
-    "/website_pics/portfolio.png",
-    "/website_pics/profile.png",
-    "/website_pics/wedding.png",
-    "/website_pics/quiz.png",
+    { id: 1, name: "Jalam", tools: ["React", "Tailwind CSS"] },
+    { id: 2, name: "Portfolio", tools: ["Next.js", "Framer Motion"] },
+    { id: 3, name: "Profile", tools: ["HTML", "CSS", "JavaScript"] },
+    { id: 4, name: "Wedding", tools: ["React", "GSAP"] },
+    { id: 5, name: "Quiz App", tools: ["TypeScript", "API"] },
   ];
-
-  const y = useTransform(scrollProgress, range, ["0%", "-50%"]);
 
   return (
     <motion.div
@@ -557,13 +592,19 @@ const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => v
       exit={{ opacity: 0, scale: 0.95 }}
       className="w-full h-[90vh] overflow-hidden relative rounded-2xl"
     >
-      <motion.div style={{ y }} className="flex flex-col gap-4 px-4 py-0">
-        {[...projects, ...projects].map((src, i) => (
-          <div key={i} onClick={onExpand} className="w-full flex-shrink-0 block cursor-pointer">
-            <img src={src} alt={`Project ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
-          </div>
-        ))}
-      </motion.div>
+      <div className="flex flex-col gap-4 px-4 py-0">
+        {projects.map((project, i) => (
+          <ProjectItem
+            key={project.id}
+            project={project}
+            index={i}
+            onExpand={onExpand}
+            scrollProgress={scrollProgress}
+            range={range}
+            total={projects.length}
+          />
+         ))}
+      </div>
     </motion.div>
   );
 };
