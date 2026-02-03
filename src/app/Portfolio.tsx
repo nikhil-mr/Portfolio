@@ -762,6 +762,13 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const handleDownload = () => {
     if (selectedPoster === null) return;
     const link = document.createElement('a');
@@ -773,7 +780,7 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
   };
 
   return (
-    <div className="w-full min-h-full flex flex-col">
+    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-8 md:p-20">
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
@@ -907,8 +914,15 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   return (
-    <div className="w-full min-h-full flex flex-col">
+    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-8 md:p-20">
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
