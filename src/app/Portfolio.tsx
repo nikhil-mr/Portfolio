@@ -578,11 +578,11 @@ const ProjectItem = ({
 
 const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => void; scrollProgress: MotionValue<number>; range: [number, number] }) => {
   const projects = [
-    { id: 1, name: "Jalam", tools: ["React", "Tailwind CSS"] },
-    { id: 2, name: "Portfolio", tools: ["Next.js", "Framer Motion"] },
-    { id: 3, name: "Profile", tools: ["HTML", "CSS", "JavaScript"] },
-    { id: 4, name: "Wedding", tools: ["React", "GSAP"] },
-    { id: 5, name: "Quiz App", tools: ["TypeScript", "API"] },
+    { id: 1, name: "Jalam", tools: ["HTML", "CSS", "JavaScript","Firebase"] },
+    { id: 2, name: "portfolio_V2", tools: ["TypeScript", "Tailwind CSS"] },
+    { id: 3, name: "portfolio", tools: ["HTML", "CSS", "JavaScript"] },
+    { id: 4, name: "Wedding", tools: ["HTML", "CSS", "JavaScript","PHP"] },
+    { id: 5, name: "Quiz App", tools: ["TypeScript", "Tailwind CSS"] },
   ];
 
   return (
@@ -904,7 +904,7 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
   const projects = [
     "/website_pics/jalam.png",
     "/website_pics/portfolio.png",
-    "/website_pics/profile.png",
+    "/website_pics/portfolio_V2.png",
     "/website_pics/wedding.png",
     "/website_pics/quiz.png",
   ];
