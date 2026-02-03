@@ -235,7 +235,7 @@ const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
 const CharacterTypingEffect = ({ text, delay }: { text: string; delay: number }) => {
   const characters = text.split("");
   return (
-    <p className="text-xl font-light text-gray-600 leading-relaxed">
+    <p className="text-lg md:text-xl font-light text-gray-600 leading-relaxed">
       {characters.map((char, index) => (
         <motion.span
           key={index}
@@ -279,6 +279,15 @@ const HomePage = () => {
   const { scrollYProgress: aboutProgress } = useScroll({
     target: aboutRef,
     offset: ["start start", "end end"],
+  });
+
+  const [hasAutoScrolled, setHasAutoScrolled] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (!hasAutoScrolled && latest > 50 && latest < window.innerHeight) {
+      setHasAutoScrolled(true);
+      aboutRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   });
 
   const aboutBg = useTransform(aboutProgress, [0, 0.1], ["#FFFFFF", "#18181B"]);
@@ -351,19 +360,19 @@ const HomePage = () => {
       <div ref={containerRef} className="h-[300vh] relative">
         <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row overflow-hidden">
           {/* Left Zone - White Background */}
-          <div className="w-full md:w-1/2 h-full bg-white flex flex-col justify-center items-center relative p-8 overflow-hidden">
+          <div className="w-full md:w-1/2 h-[45%] md:h-full bg-white flex flex-col justify-center items-center relative p-8 overflow-hidden">
             <div className="absolute top-0 left-0 w-full md:w-[200%] flex justify-start z-50">
               <motion.h1 
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
-                className="text-4xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]"
+                className="text-7xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]"
               >
                 Digital Designer<br />& Developer
               </motion.h1>
             </div>
 
-            <div className="flex flex-col items-start gap-1 z-10 max-w-md">
+            <div className="flex flex-col items-start gap-1 z-10 max-w-md mt-40 md:mt-20 self-start md:self-center">
               <div className="flex items-start gap-3">
                 <motion.div 
                   initial={{ scale: 0 }}
@@ -379,7 +388,7 @@ const HomePage = () => {
             </div>
 
             <motion.div 
-              className="absolute bottom-12 flex flex-col items-center gap-3 z-20"
+              className="absolute bottom-12 hidden md:flex flex-col items-center gap-3 z-20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2, duration: 0.8 }}
@@ -396,7 +405,7 @@ const HomePage = () => {
           </div>
 
           {/* Right Zone - Image Background */}
-          <div className="w-full md:w-1/2 h-full relative overflow-hidden">
+          <div className="w-full md:w-1/2 h-[55%] md:h-full relative overflow-hidden">
             <div className="absolute top-0 left-0 md:left-[-100%] w-full md:w-[200%] flex justify-start z-50 hidden md:flex">
               <motion.h1 
                 initial={{ y: 50, opacity: 0 }}
@@ -749,7 +758,7 @@ const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => vo
       exit={{ opacity: 0, scale: 0.95 }}
       className="w-full md:w-[80%] mx-auto h-[90vh] overflow-hidden relative rounded-2xl"
     >
-      <motion.div style={{ y }} className="grid grid-cols-1 gap-4 px-4 py-0">
+      <motion.div style={{ y }} className="grid grid-cols-2 md:grid-cols-1 gap-4 px-4 py-0">
         {[...posters, ...posters].map((src, i) => (
           <div key={i} onClick={handlePosterClick} className="w-full flex-shrink-0 block cursor-pointer">
             <img src={src} alt={`Poster ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
