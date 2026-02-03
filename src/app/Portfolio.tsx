@@ -62,8 +62,37 @@ const IntroAnimation = ({ onComplete }: { onComplete: () => void }) => {
       }
     };
 
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.cancelable) e.preventDefault();
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStartY - touchY;
+      touchStartY = touchY;
+
+      const sensitivity = 0.003;
+      const current = scrollProgress.get();
+      const newProgress = current + deltaY * sensitivity;
+
+      if (newProgress >= 1.1) {
+         onComplete();
+      } else {
+        scrollProgress.set(Math.max(0, newProgress));
+      }
+    };
+
     window.addEventListener("wheel", handleWheel);
-    return () => window.removeEventListener("wheel", handleWheel);
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
   }, [isLoaded, scrollProgress, onComplete]);
 
   useMotionValueEvent(scrollProgress, "change", (latest) => {
@@ -74,7 +103,7 @@ const IntroAnimation = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center overflow-hidden touch-none"
     >
       <div className="absolute inset-0 flex items-center justify-center z-40 mix-blend-difference pointer-events-none">
         <h1 className="text-6xl md:text-9xl font-bold text-white tracking-tighter uppercase">
@@ -393,7 +422,7 @@ const HomePage = () => {
 
       {/* About Section */}
       <motion.div ref={aboutRef} style={{ backgroundColor: aboutBg }} className="relative h-[250vh] z-20">
-        <div className="sticky top-0 h-screen flex flex-col items-center justify-center p-8 md:p-20 gap-12">
+        <div className="sticky top-0 h-screen flex flex-col items-center justify-center p-4 md:p-20 gap-12">
           <TypingText 
             text="I'm Nikhil—a frontend developer crafting fast, scalable, and immersive digital experiences that merge creativity with engineering precision. I specialize in Html, Css, JavaScript, and React." 
             progress={aboutProgress}
@@ -424,7 +453,7 @@ const HomePage = () => {
       >
         <div className={`${
           !showPostersGrid && !showProjectsGrid ? "sticky top-0 h-screen" : ""
-        } flex flex-col md:flex-row justify-between items-start p-8 md:p-20 gap-12`}>
+        } flex flex-col md:flex-row justify-between items-start p-4 md:p-20 gap-12`}>
         {showPostersGrid ? (
           <FullPostersGrid onBack={() => setShowPostersGrid(false)} />
         ) : showProjectsGrid ? (
@@ -467,16 +496,6 @@ const HomePage = () => {
                   </div>
                 </motion.div>
 
-                <motion.div
-                  style={{ opacity: stat3Opacity, y: stat3Y }}
-                  className="flex flex-col gap-4"
-                >
-                  <div className="h-px w-full bg-black/20" />
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 uppercase tracking-widest">years of experience</span>
-                    <span className="text-6xl md:text-8xl font-bold">1</span>
-                  </div>
-                </motion.div>
               </div>
             </div>
             <motion.div 
@@ -484,17 +503,6 @@ const HomePage = () => {
               className="flex flex-col gap-8 max-w-2xl w-full"
             >
               <AnimatePresence mode="wait">
-                {activeSection === 'text' && (
-                  <motion.h3
-                    key="text"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="text-3xl md:text-5xl leading-tight font-semibold"
-                  >
-                    Driving measurable growth and engagement through thoughtful design and engineering.
-                  </motion.h3>
-                )}
                 {activeSection === 'posters' && (
                   <PosterGallery key="posters" onExpand={() => setShowPostersGrid(true)} scrollProgress={statsProgress} range={[0.2, 0.5]} />
                 )}
@@ -564,9 +572,9 @@ const ProjectItem = ({
     <motion.div
       style={{ opacity, y }}
       onClick={onExpand}
-      className="w-full flex-shrink-0 block cursor-pointer bg-zinc-100 p-8 rounded-lg shadow-sm hover:bg-zinc-200 transition-colors group"
+      className="w-full flex-shrink-0 block cursor-pointer bg-zinc-100 p-6 md:p-8 rounded-lg shadow-sm hover:bg-zinc-200 transition-colors group"
     >
-      <h3 className="text-3xl md:text-4xl font-bold text-black uppercase mb-2 group-hover:text-purple-600 transition-colors">
+      <h3 className="text-2xl md:text-4xl font-bold text-black uppercase mb-2 group-hover:text-purple-600 transition-colors">
         {String(project.id).padStart(2, '0')} - {project.name}
       </h3>
       <p className="text-gray-600 text-sm md:text-base uppercase tracking-widest">
@@ -739,7 +747,7 @@ const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => vo
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="w-[80%] mx-auto h-[90vh] overflow-hidden relative rounded-2xl"
+      className="w-full md:w-[80%] mx-auto h-[90vh] overflow-hidden relative rounded-2xl"
     >
       <motion.div style={{ y }} className="grid grid-cols-1 gap-4 px-4 py-0">
         {[...posters, ...posters].map((src, i) => (
@@ -780,7 +788,7 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-8 md:p-20">
+    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-4 md:p-20">
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
@@ -813,9 +821,9 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col lg:flex-row gap-8 h-full min-h-[60vh]"
+            className="flex flex-col lg:flex-row gap-4 lg:gap-8 h-full min-h-[60vh]"
           >
-            <div className="flex-1 bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center p-8 relative">
+            <div className="flex-1 bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center p-4 md:p-8 relative">
               <motion.img 
                 key={selectedPoster}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -922,7 +930,7 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-8 md:p-20">
+    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-4 md:p-20">
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
@@ -955,9 +963,9 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col lg:flex-row gap-8 h-full min-h-[60vh]"
+            className="flex flex-col lg:flex-row gap-4 lg:gap-8 h-full min-h-[60vh]"
           >
-            <div className="flex-1 bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center p-8 relative">
+            <div className="flex-1 bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center p-4 md:p-8 relative">
               <motion.img 
                 key={selectedProject}
                 initial={{ opacity: 0, scale: 0.95 }}
