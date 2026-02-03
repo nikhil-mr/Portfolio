@@ -538,16 +538,16 @@ const HomePage = () => {
         </motion.div>
 
         <div className="flex flex-wrap justify-center gap-8 md:gap-16">
-          <a href="mailto:example@email.com" className="flex flex-col items-center gap-2 group">
+          <a href="mailto:12nikhilreji@email.com" className="flex flex-col items-center gap-2 group">
             <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">Email</span>
           </a>
-          <a href="tel:+1234567890" className="flex flex-col items-center gap-2 group">
+          <a href="tel:+916238984317" className="flex flex-col items-center gap-2 group">
             <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">Phone</span>
           </a>
-          <a href="#" className="flex flex-col items-center gap-2 group">
+          <a href="https://www.github.com/nikhil-mr" className="flex flex-col items-center gap-2 group">
             <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">GitHub</span>
           </a>
-          <a href="#" className="flex flex-col items-center gap-2 group">
+          <a href="https://www.linkedin.com/in/nikhil-mani-reji-582130280?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" className="flex flex-col items-center gap-2 group">
             <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">LinkedIn</span>
           </a>
         </div>
