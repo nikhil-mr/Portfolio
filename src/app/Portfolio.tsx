@@ -235,7 +235,7 @@ const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
 const CharacterTypingEffect = ({ text, delay }: { text: string; delay: number }) => {
   const characters = text.split("");
   return (
-    <p className="text-lg md:text-xl font-light text-gray-600 leading-relaxed">
+    <p className="text-base md:text-xl font-light text-gray-600 leading-relaxed">
       {characters.map((char, index) => (
         <motion.span
           key={index}
