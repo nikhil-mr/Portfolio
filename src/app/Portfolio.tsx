@@ -366,7 +366,7 @@ const HomePage = () => {
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
-                className="text-7xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]"
+                className="text-5xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]"
               >
                 Digital Designer<br />& Developer
               </motion.h1>
@@ -749,7 +749,7 @@ const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => vo
     onExpand();
   };
 
-  const y = useTransform(scrollProgress, range, ["0%", "-50%"]);
+  const move = useTransform(scrollProgress, range, ["0%", "-50%"]);
 
   return (
     <motion.div
@@ -758,7 +758,17 @@ const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => vo
       exit={{ opacity: 0, scale: 0.95 }}
       className="w-full md:w-[80%] mx-auto h-[90vh] overflow-hidden relative rounded-2xl"
     >
-      <motion.div style={{ y }} className="grid grid-cols-2 md:grid-cols-1 gap-4 px-4 py-0">
+      {/* Mobile: Horizontal movement */}
+      <motion.div style={{ x: move }} className="flex md:hidden gap-4 px-4 py-0 w-max">
+        {[...posters, ...posters].map((src, i) => (
+          <div key={i} onClick={handlePosterClick} className="w-[45vw] flex-shrink-0 block cursor-pointer">
+            <img src={src} alt={`Poster ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Desktop: Vertical movement */}
+      <motion.div style={{ y: move }} className="hidden md:grid grid-cols-1 gap-4 px-4 py-0">
         {[...posters, ...posters].map((src, i) => (
           <div key={i} onClick={handlePosterClick} className="w-full flex-shrink-0 block cursor-pointer">
             <img src={src} alt={`Poster ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
