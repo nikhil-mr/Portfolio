@@ -420,7 +420,7 @@ const HomePage = () => {
             <div className="absolute inset-0 bg-[url('/Myself.jpeg')] bg-cover bg-center" />
             
             {/* Navigation - Bottom Right Vertical */}
-            <nav className="absolute bottom-8 right-8 flex flex-col items-end gap-4 z-40 text-white">
+            <nav className="absolute bottom-20 md:bottom-8 right-8 flex flex-col items-end gap-4 z-40 text-white">
               <FlipLink href="#">About</FlipLink>
               <FlipLink href="#">Works</FlipLink>
               <FlipLink href="#">Content</FlipLink>
