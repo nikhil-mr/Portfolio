@@ -366,7 +366,7 @@ const HomePage = () => {
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
-                className="text-5xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]"
+                className="text-6xl md:text-[10vw] font-bold tracking-tighter text-black uppercase text-left leading-[0.8]"
               >
                 Digital Designer<br />& Developer
               </motion.h1>
