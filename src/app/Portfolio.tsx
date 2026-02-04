@@ -602,6 +602,8 @@ const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => v
     { id: 5, name: "Quiz App", tools: ["TypeScript", "Tailwind CSS"] },
   ];
 
+  const move = useTransform(scrollProgress, range, ["0%", "-90%"]);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -609,7 +611,25 @@ const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => v
       exit={{ opacity: 0, scale: 0.95 }}
       className="w-full h-[90vh] overflow-hidden relative rounded-2xl"
     >
-      <div className="flex flex-col gap-4 px-4 py-0">
+      {/* Mobile: Vertical movement */}
+      <motion.div style={{ y: move }} className="flex flex-col md:hidden gap-4 px-4 py-0 w-full">
+        {projects.map((project, i) => (
+          <div
+            key={project.id}
+            onClick={onExpand}
+            className="w-full flex-shrink-0 block cursor-pointer bg-zinc-100 p-6 rounded-lg shadow-sm hover:bg-zinc-200 transition-colors group"
+          >
+            <h3 className="text-2xl font-bold text-black uppercase mb-2 group-hover:text-purple-600 transition-colors">
+              {String(project.id).padStart(2, '0')} - {project.name}
+            </h3>
+            <p className="text-gray-600 text-sm uppercase tracking-widest">
+              Tools Used - {project.tools.join(", ")}
+            </p>
+          </div>
+        ))}
+      </motion.div>
+
+      <div className="hidden md:flex flex-col gap-4 px-4 py-0">
         {projects.map((project, i) => (
           <ProjectItem
             key={project.id}
