@@ -175,15 +175,45 @@ const AnimatedHamburgerIcon = ({ isOpen }: { isOpen: boolean }) => {
   );
 };
 
-const MenuLink = ({ children, href }: { children: string; href: string }) => {
+const TransitionOverlay = ({ label, onComplete }: { label: string; onComplete: () => void }) => {
   return (
-    <Link href={href} className="text-xl font-semibold hover:text-purple-400 transition-colors uppercase tracking-widest">
-      {children}
-    </Link>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center"
+    >
+      <motion.h1
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="text-4xl md:text-6xl font-bold text-black tracking-widest uppercase mb-8"
+      >
+        {label}
+      </motion.h1>
+      <div className="w-48 md:w-64 h-1 bg-gray-200 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-black"
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 1.0, ease: "easeInOut" }}
+          onAnimationComplete={onComplete}
+        />
+      </div>
+    </motion.div>
   );
 };
 
-const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
+const MenuLink = ({ children, onClick }: { children: string; onClick: () => void }) => {
+  return (
+    <button onClick={onClick} className="text-xl font-semibold hover:text-purple-400 transition-colors uppercase tracking-widest text-right">
+      {children}
+    </button>
+  );
+};
+
+const NavMenu = ({ isOpen, onNavigate }: { isOpen: boolean; onNavigate: (section: string) => void }) => {
   const [isWorksHovered, setIsWorksHovered] = useState(false);
 
   return (
@@ -198,14 +228,14 @@ const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <nav className="flex flex-col items-end gap-5">
-            <MenuLink href="#">Home</MenuLink>
-            <MenuLink href="#">About</MenuLink>
+            <MenuLink onClick={() => onNavigate('Home')}>Home</MenuLink>
+            <MenuLink onClick={() => onNavigate('About')}>About</MenuLink>
             <motion.div
               className="relative flex items-center gap-2"
               onHoverStart={() => setIsWorksHovered(true)}
               onHoverEnd={() => setIsWorksHovered(false)}
             >
-              <MenuLink href="#">Works</MenuLink>
+              <MenuLink onClick={() => onNavigate('Works')}>Works</MenuLink>
               <motion.div animate={{ x: isWorksHovered ? 3 : 0 }} transition={{ duration: 0.2 }}>
                  <ChevronRight size={18} />
               </motion.div>
@@ -218,13 +248,13 @@ const NavMenu = ({ isOpen }: { isOpen: boolean }) => {
                     transition={{ duration: 0.2, delay: 0.1 }}
                     className="absolute right-[120%] top-1/2 -translate-y-1/2 flex flex-col gap-3 whitespace-nowrap bg-black/30 p-4 rounded-xl"
                   >
-                    <MenuLink href="#">Posters</MenuLink>
-                    <MenuLink href="#">Websites</MenuLink>
+                    <MenuLink onClick={() => onNavigate('Posters')}>Posters</MenuLink>
+                    <MenuLink onClick={() => onNavigate('Websites')}>Websites</MenuLink>
                   </motion.div>
                 )}
               </AnimatePresence>
             </motion.div>
-            <MenuLink href="#">Content</MenuLink>
+            <MenuLink onClick={() => onNavigate('Contact')}>Contact</MenuLink>
           </nav>
         </motion.div>
       )}
@@ -252,6 +282,7 @@ const CharacterTypingEffect = ({ text, delay }: { text: string; delay: number })
 
 const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -284,7 +315,7 @@ const HomePage = () => {
   const [hasAutoScrolled, setHasAutoScrolled] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    if (!hasAutoScrolled && latest > 50 && latest < window.innerHeight) {
+    if (!hasAutoScrolled && latest > 0 && latest < window.innerHeight) {
       setHasAutoScrolled(true);
       aboutRef.current?.scrollIntoView({ behavior: "smooth" });
     }
@@ -329,6 +360,50 @@ const HomePage = () => {
     }
   });
 
+  const [transitionData, setTransitionData] = useState<{ label: string; targetRef: React.RefObject<HTMLDivElement>; callback?: () => void } | null>(null);
+
+  const handleNavigate = (section: string) => {
+    let ref = containerRef;
+    let label = section;
+    let callback: (() => void) | undefined;
+
+    switch (section.toLowerCase()) {
+      case 'home':
+        ref = containerRef;
+        label = "HOME";
+        break;
+      case 'about':
+        ref = aboutRef;
+        label = "ABOUT";
+        break;
+      case 'works':
+        ref = statsRef;
+        label = "WORKS";
+        callback = () => {
+          setShowPostersGrid(false);
+          setShowProjectsGrid(false);
+        };
+        break;
+      case 'posters':
+        ref = statsRef;
+        label = "POSTERS";
+        callback = () => setShowPostersGrid(true);
+        break;
+      case 'websites':
+        ref = statsRef;
+        label = "WEBSITES";
+        callback = () => setShowProjectsGrid(true);
+        break;
+      case 'contact':
+        ref = contactRef;
+        label = "CONTACT";
+        break;
+    }
+
+    setTransitionData({ label, targetRef: ref, callback });
+    setIsMenuOpen(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -336,7 +411,12 @@ const HomePage = () => {
       transition={{ duration: 1 }}
       className="relative w-full"
     >
-      <NavMenu isOpen={isMenuOpen} />
+      <AnimatePresence>
+        {transitionData && (
+          <TransitionOverlay label={transitionData.label} onComplete={() => { transitionData.callback?.(); transitionData.targetRef.current?.scrollIntoView({ behavior: "instant" }); setTimeout(() => setTransitionData(null), 100); }} />
+        )}
+      </AnimatePresence>
+      <NavMenu isOpen={isMenuOpen} onNavigate={handleNavigate} />
       <AnimatePresence>
         {showHamburger && (
           <motion.button
@@ -422,9 +502,9 @@ const HomePage = () => {
             {/* Navigation - Bottom Right Vertical */}
             <nav className="absolute bottom-20 md:bottom-8 right-8 flex flex-col items-end gap-4 z-40 text-white">
               <div className="flex flex-col items-end gap-4">
-                <FlipLink href="#">About</FlipLink>
-                <FlipLink href="#">Works</FlipLink>
-                <FlipLink href="#">Contact</FlipLink>
+                <FlipLink onClick={() => handleNavigate('About')}>About</FlipLink>
+                <FlipLink onClick={() => handleNavigate('Works')}>Works</FlipLink>
+                <FlipLink onClick={() => handleNavigate('Contact')}>Contact</FlipLink>
               </div>
             </nav>
           </div>
@@ -528,14 +608,14 @@ const HomePage = () => {
       </div>
 
       {/* Contact Section */}
-      <div className="h-screen bg-zinc-900 flex flex-col items-center justify-center gap-16 text-white">
+      <div ref={contactRef} className="h-screen bg-zinc-900 flex flex-col items-center justify-center gap-16 text-white">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
           <button className="px-12 py-6 bg-white text-black text-2xl font-bold uppercase tracking-[0.2em] rounded-full hover:bg-purple-500 hover:text-white transition-all duration-300 shadow-[0_0_50px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_50px_-10px_rgba(168,85,247,0.5)]">
-            Hire Me
+            let's connect
           </button>
         </motion.div>
 
@@ -628,16 +708,16 @@ const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => v
   );
 };
 
-const FlipLink = ({ children, href }: { children: string; href: string }) => {
+const FlipLink = ({ children, onClick }: { children: string; onClick: () => void }) => {
   const DURATION = 0.25;
   const STAGGER = 0.025;
 
   return (
-    <motion.a
+    <motion.button
       initial="initial"
       whileHover="hovered"
-      href={href}
-      className="relative block overflow-hidden whitespace-nowrap text-2xl font-bold uppercase md:text-4xl"
+      onClick={onClick}
+      className="relative block overflow-hidden whitespace-nowrap text-2xl font-bold uppercase md:text-4xl text-right"
       style={{ lineHeight: 0.9 }}
     >
       <div>
@@ -678,7 +758,7 @@ const FlipLink = ({ children, href }: { children: string; href: string }) => {
           </motion.span>
         ))}
       </div>
-    </motion.a>
+    </motion.button>
   );
 };
 
