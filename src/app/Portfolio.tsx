@@ -280,6 +280,59 @@ const CharacterTypingEffect = ({ text, delay }: { text: string; delay: number })
   );
 };
 
+const ConnectText = () => {
+  const [variant, setVariant] = useState("hidden");
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    if (variant === "visible") {
+      timeout = setTimeout(() => setVariant("hidden"), 4000);
+    } else {
+      timeout = setTimeout(() => setVariant("visible"), 1000);
+    }
+    return () => clearTimeout(timeout);
+  }, [variant]);
+
+  return (
+    <motion.h2
+      initial="hidden"
+      animate={variant}
+      variants={{
+        hidden: { opacity: 1 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+      }}
+      className="text-5xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-black uppercase"
+    >
+      {Array.from("LET'S CONNECT").map((char, i) => (
+        <motion.span
+          key={i}
+          variants={{
+            hidden: { opacity: 0, transition: { duration: 0.5 } },
+            visible: { opacity: 1, transition: { duration: 0 } }
+          }}
+        >
+          {char}
+        </motion.span>
+      ))}
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{ duration: 0.8, repeat: Infinity, ease: "steps(2)" }}
+        className="inline-block w-2 h-10 md:h-20 bg-black ml-2 align-middle"
+      />
+    </motion.h2>
+  );
+};
+
+const StarIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+    <line x1="12" y1="1" x2="12" y2="23"></line>
+    <line x1="1" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="4.22" x2="19.78" y2="19.78"></line>
+    <line x1="4.22" y1="19.78" x2="19.78" y2="4.22"></line>
+  </svg>
+);
+
 const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
@@ -608,30 +661,43 @@ const HomePage = () => {
       </div>
 
       {/* Contact Section */}
-      <div ref={contactRef} className="h-screen bg-zinc-900 flex flex-col items-center justify-center gap-16 text-white">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <button className="px-12 py-6 bg-white text-black text-2xl font-bold uppercase tracking-[0.2em] rounded-full hover:bg-purple-500 hover:text-white transition-all duration-300 shadow-[0_0_50px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_50px_-10px_rgba(168,85,247,0.5)]">
-            let's connect
-          </button>
-        </motion.div>
+      <div ref={contactRef} className="h-screen flex flex-col relative z-30">
+        <div className="flex-1 bg-white flex items-center justify-center">
+          <ConnectText />
+        </div>
 
-        <div className="flex flex-wrap justify-center gap-8 md:gap-16">
-          <a href="mailto:12nikhilreji@email.com" className="flex flex-col items-center gap-2 group">
-            <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">Email</span>
-          </a>
-          <a href="tel:+916238984317" className="flex flex-col items-center gap-2 group">
-            <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">Phone</span>
-          </a>
-          <a href="https://www.github.com/nikhil-mr" className="flex flex-col items-center gap-2 group">
-            <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">GitHub</span>
-          </a>
-          <a href="https://www.linkedin.com/in/nikhil-mani-reji-582130280?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" className="flex flex-col items-center gap-2 group">
-            <span className="text-xl md:text-2xl font-light uppercase tracking-widest group-hover:text-purple-400 transition-colors">LinkedIn</span>
-          </a>
+        <div className="h-[25vh] bg-black flex flex-col items-center justify-center px-4 md:px-20 gap-8 text-white">
+          <div className="flex flex-wrap items-center justify-around w-full max-w-4xl mx-auto gap-4">
+            <a href="mailto:12nikhilreji@email.com" className="group">
+              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">Email</span>
+            </a>
+            <a href="tel:+916238984317" className="group">
+              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">Phone</span>
+            </a>
+            <a href="https://www.github.com/nikhil-mr" className="group">
+              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">GitHub</span>
+            </a>
+            <a href="https://www.linkedin.com/in/nikhil-mani-reji-582130280?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" className="group">
+              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">LinkedIn</span>
+            </a>
+          </div>
+
+          <div className="w-full overflow-hidden">
+            <motion.div 
+              className="flex items-center gap-8 whitespace-nowrap"
+              animate={{ x: "-50%" }}
+              transition={{ duration: 20, ease: "linear", repeat: Infinity }}
+            >
+              {[...Array(4)].map((_, i) => (
+                <React.Fragment key={i}>
+                  <span className="text-base md:text-lg uppercase tracking-widest text-gray-400">Driven by Passion, Built with Code</span>
+                  <StarIcon />
+                  <span className="text-base md:text-lg uppercase tracking-widest text-gray-400">Custom Web Experiences</span>
+                  <StarIcon />
+                </React.Fragment>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </div>
     </motion.div>
