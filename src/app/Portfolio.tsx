@@ -316,8 +316,13 @@ const ConnectText = () => {
       ))}
       <motion.span
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 0.8, repeat: Infinity, ease: "steps(2)" }}
+        animate={{ opacity: [0, 0, 1, 1] }}
+        transition={{
+          duration: 0.8,
+          repeat: Infinity,
+          times: [0, 0.5, 0.5, 1],
+          ease: "linear",
+        }}
         className="inline-block w-2 h-10 md:h-20 bg-black ml-2 align-middle"
       />
     </motion.h2>
@@ -413,7 +418,7 @@ const HomePage = () => {
     }
   });
 
-  const [transitionData, setTransitionData] = useState<{ label: string; targetRef: React.RefObject<HTMLDivElement>; callback?: () => void } | null>(null);
+  const [transitionData, setTransitionData] = useState<{ label: string; targetRef: React.RefObject<HTMLDivElement | null>; callback?: () => void } | null>(null);
 
   const handleNavigate = (section: string) => {
     let ref = containerRef;
