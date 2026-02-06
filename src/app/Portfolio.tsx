@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, useScroll, useMotionValueEvent, AnimatePresence, useMotionValue, useTransform, MotionValue } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence, useMotionValue, useTransform, MotionValue, useSpring, useVelocity, useAnimationFrame } from 'framer-motion';
 import { Menu, ChevronRight } from 'lucide-react';
 
 export default function Portfolio() {
@@ -281,39 +281,48 @@ const CharacterTypingEffect = ({ text, delay }: { text: string; delay: number })
 };
 
 const ConnectText = () => {
-  const [variant, setVariant] = useState("hidden");
+  const [textIndex, setTextIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    const texts = ["LET'S CONNECT", "AND EXPLORE"];
+    const currentFullText = texts[textIndex];
+    const typeSpeed = 150;
+    const deleteSpeed = 100;
+    const pauseTime = 1500;
+
     let timeout: ReturnType<typeof setTimeout>;
-    if (variant === "visible") {
-      timeout = setTimeout(() => setVariant("hidden"), 4000);
+
+    if (isDeleting) {
+      if (displayedText.length > 0) {
+        timeout = setTimeout(() => {
+          setDisplayedText(currentFullText.substring(0, displayedText.length - 1));
+        }, deleteSpeed);
+      } else {
+        setIsDeleting(false);
+        setTextIndex((prev) => (prev + 1) % texts.length);
+      }
     } else {
-      timeout = setTimeout(() => setVariant("visible"), 1000);
+      if (displayedText.length < currentFullText.length) {
+        timeout = setTimeout(() => {
+          setDisplayedText(currentFullText.substring(0, displayedText.length + 1));
+        }, typeSpeed);
+      } else {
+        timeout = setTimeout(() => {
+          setIsDeleting(true);
+        }, pauseTime);
+      }
     }
+
     return () => clearTimeout(timeout);
-  }, [variant]);
+  }, [displayedText, isDeleting, textIndex]);
 
   return (
     <motion.h2
-      initial="hidden"
-      animate={variant}
-      variants={{
-        hidden: { opacity: 1 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
-      }}
       className="text-5xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-black uppercase"
     >
-      {Array.from("LET'S CONNECT").map((char, i) => (
-        <motion.span
-          key={i}
-          variants={{
-            hidden: { opacity: 0, transition: { duration: 0.5 } },
-            visible: { opacity: 1, transition: { duration: 0 } }
-          }}
-        >
-          {char}
-        </motion.span>
-      ))}
+      <span>{displayedText}</span>
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 0, 1, 1] }}
@@ -323,16 +332,77 @@ const ConnectText = () => {
           times: [0, 0.5, 0.5, 1],
           ease: "linear",
         }}
-        className="inline-block w-2 h-10 md:h-20 bg-black ml-2 align-middle"
+        className="inline-block w-0.5 h-12 md:h-24 lg:h-32 bg-black ml-2 align-middle -translate-y-4"
       />
     </motion.h2>
   );
 };
 
-const StarIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+const wrap = (min: number, max: number, v: number) => {
+  const rangeSize = max - min;
+  return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
+};
+
+const MarqueeStrip = ({ direction = "left", className }: { direction?: "left" | "right"; className?: string }) => {
+  const baseX = useMotionValue(0);
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
+  const smoothVelocity = useSpring(scrollVelocity, {
+    damping: 50,
+    stiffness: 400
+  });
+  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
+    clamp: false
+  });
+
+  const x = useTransform(baseX, (v) => `${wrap(-50, 0, v)}%`);
+
+  const directionFactor = useRef<number>(1);
+
+  useAnimationFrame((t, delta) => {
+    if (velocityFactor.get() < 0) {
+      directionFactor.current = -1;
+    } else if (velocityFactor.get() > 0) {
+      directionFactor.current = 1;
+    }
+
+    let moveBy = directionFactor.current * (direction === "left" ? -2 : 2) * (delta / 1000);
+    moveBy += moveBy * Math.abs(velocityFactor.get());
+
+    baseX.set(baseX.get() + moveBy);
+  });
+
+  return (
+    <div className={`absolute w-[120%] bg-black py-6 flex items-center overflow-hidden ${className}`}>
+      <motion.div
+        className="flex whitespace-nowrap gap-12"
+        style={{ x }}
+      >
+        {[...Array(10)].map((_, i) => (
+          <span key={i} className="text-white text-2xl md:text-4xl font-bold uppercase tracking-widest flex items-center gap-4">
+            DEVELOPER 
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
+              <StarIcon className="text-purple-500 w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
+            </motion.div>
+            DESIGNER 
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
+              <StarIcon className="text-purple-500 w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
+            </motion.div>
+            GAMER 
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
+              <StarIcon className="text-purple-500 w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
+            </motion.div>
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+const StarIcon = ({ className, strokeWidth = 1.5 }: { className?: string; strokeWidth?: number }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className || "w-5 h-5 text-gray-400"}>
     <line x1="12" y1="1" x2="12" y2="23"></line>
-    <line x1="1" y1="12" x2="23" y2="12"></line>
+    <line x1="1" y1="12" x2="23" y2="12"></line> 
     <line x1="4.22" y1="4.22" x2="19.78" y2="19.78"></line>
     <line x1="4.22" y1="19.78" x2="19.78" y2="4.22"></line>
   </svg>
@@ -405,6 +475,13 @@ const HomePage = () => {
 
   const rightOpacity = useTransform(statsProgress, [0.05, 0.2], [0, 1]);
   const rightY = useTransform(statsProgress, [0.05, 0.2, 1], [20, 0, -50]);
+
+  const stripRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: stripProgress } = useScroll({
+    target: stripRef,
+    offset: ["start end", "end start"],
+  });
+  const stripY = useTransform(stripProgress, [0, 1], [-100, 0]);
 
   useMotionValueEvent(statsProgress, "change", (latest) => {
     if (latest < 0.2) {
@@ -664,6 +741,16 @@ const HomePage = () => {
         )}
         </div>
       </div>
+
+      {/* Crossing Strips Section */}
+      <motion.div 
+        ref={stripRef}
+        style={{ y: stripY }}
+        className="relative w-full h-[30vh] -mt-32 -mb-[20vh] bg-white overflow-hidden flex items-center justify-center z-40"
+      >
+        <MarqueeStrip direction="left" className="rotate-6 z-10" />
+        <MarqueeStrip direction="right" className="-rotate-6 z-20" />
+      </motion.div>
 
       {/* Contact Section */}
       <div ref={contactRef} className="h-screen flex flex-col relative z-30">
