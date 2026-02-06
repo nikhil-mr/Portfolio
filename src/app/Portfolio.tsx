@@ -1,10 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useMotionValue, useTransform, MotionValue, useSpring, useVelocity, useAnimationFrame } from 'framer-motion';
-import { Menu, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export default function Portfolio() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
@@ -138,43 +136,6 @@ const IntroAnimation = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-const AnimatedHamburgerIcon = ({ isOpen }: { isOpen: boolean }) => {
-  const common = {
-    className: "w-6 h-0.5 bg-current rounded-full absolute",
-    transition: { duration: 0.3, ease: "easeInOut" } as const,
-    initial: "closed",
-    animate: isOpen ? "open" : "closed",
-  };
-
-  return (
-    <div className="w-6 h-6 relative">
-      <motion.div
-        {...common}
-        variants={{
-          closed: { top: "20%", rotate: 0 },
-          open: { top: "50%", y: "-50%", rotate: 45 },
-        }}
-      />
-      <motion.div
-        {...common}
-        style={{ top: "50%", y: "-50%" }}
-        variants={{
-          closed: { opacity: 1 },
-          open: { opacity: 0 },
-        }}
-        transition={{ duration: 0.1 }}
-      />
-      <motion.div
-        {...common}
-        variants={{
-          closed: { bottom: "20%", rotate: 0 },
-          open: { bottom: "50%", y: "50%", rotate: -45 },
-        }}
-      />
-    </div>
-  );
-};
-
 const TransitionOverlay = ({ label, onComplete }: { label: string; onComplete: () => void }) => {
   return (
     <motion.div
@@ -202,63 +163,6 @@ const TransitionOverlay = ({ label, onComplete }: { label: string; onComplete: (
         />
       </div>
     </motion.div>
-  );
-};
-
-const MenuLink = ({ children, onClick }: { children: string; onClick: () => void }) => {
-  return (
-    <button onClick={onClick} className="text-xl font-semibold hover:text-purple-400 transition-colors uppercase tracking-widest text-right">
-      {children}
-    </button>
-  );
-};
-
-const NavMenu = ({ isOpen, onNavigate }: { isOpen: boolean; onNavigate: (section: string) => void }) => {
-  const [isWorksHovered, setIsWorksHovered] = useState(false);
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20, x: 20 }}
-          animate={{ opacity: 1, y: 0, x: 0 }}
-          exit={{ opacity: 0, y: -20, x: 20 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="fixed top-28 right-6 z-50 bg-black/50 backdrop-blur-md p-6 rounded-2xl shadow-2xl text-white"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <nav className="flex flex-col items-end gap-5">
-            <MenuLink onClick={() => onNavigate('Home')}>Home</MenuLink>
-            <MenuLink onClick={() => onNavigate('About')}>About</MenuLink>
-            <motion.div
-              className="relative flex items-center gap-2"
-              onHoverStart={() => setIsWorksHovered(true)}
-              onHoverEnd={() => setIsWorksHovered(false)}
-            >
-              <MenuLink onClick={() => onNavigate('Works')}>Works</MenuLink>
-              <motion.div animate={{ x: isWorksHovered ? 3 : 0 }} transition={{ duration: 0.2 }}>
-                 <ChevronRight size={18} />
-              </motion.div>
-              <AnimatePresence>
-                {isWorksHovered && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
-                    transition={{ duration: 0.2, delay: 0.1 }}
-                    className="absolute right-[120%] top-1/2 -translate-y-1/2 flex flex-col gap-3 whitespace-nowrap bg-black/30 p-4 rounded-xl"
-                  >
-                    <MenuLink onClick={() => onNavigate('Posters')}>Posters</MenuLink>
-                    <MenuLink onClick={() => onNavigate('Websites')}>Websites</MenuLink>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-            <MenuLink onClick={() => onNavigate('Contact')}>Contact</MenuLink>
-          </nav>
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 };
 
@@ -417,23 +321,6 @@ const HomePage = () => {
   });
 
   const { scrollY } = useScroll();
-  const [showHamburger, setShowHamburger] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleClickOutside = () => setIsMenuOpen(false);
-    if (isMenuOpen) window.addEventListener("click", handleClickOutside);
-    return () => window.removeEventListener("click", handleClickOutside);
-  }, [isMenuOpen]);
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    if (typeof window !== 'undefined') {
-      const shouldShow = latest > window.innerHeight;
-      setShowHamburger(shouldShow);
-      if (!shouldShow) setIsMenuOpen(false);
-    }
-  });
-
   const aboutRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: aboutProgress } = useScroll({
     target: aboutRef,
@@ -536,7 +423,6 @@ const HomePage = () => {
     }
 
     setTransitionData({ label, targetRef: ref, callback });
-    setIsMenuOpen(false);
   };
 
   return (
@@ -549,25 +435,6 @@ const HomePage = () => {
       <AnimatePresence>
         {transitionData && (
           <TransitionOverlay label={transitionData.label} onComplete={() => { transitionData.callback?.(); transitionData.targetRef.current?.scrollIntoView({ behavior: "instant" }); setTimeout(() => setTransitionData(null), 100); }} />
-        )}
-      </AnimatePresence>
-      <NavMenu isOpen={isMenuOpen} onNavigate={handleNavigate} />
-      <AnimatePresence>
-        {showHamburger && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsMenuOpen(!isMenuOpen);
-            }}
-            className="fixed top-6 right-6 z-50 p-4 text-white mix-blend-difference cursor-pointer"
-          >
-            <AnimatedHamburgerIcon isOpen={isMenuOpen} />
-          </motion.button>
         )}
       </AnimatePresence>
 
