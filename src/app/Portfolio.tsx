@@ -1074,7 +1074,7 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col lg:flex-row gap-4 lg:gap-8 h-full min-h-[60vh]"
+            className="flex flex-col lg:flex-row gap-8 lg:gap-12 h-full min-h-[60vh] p-8 md:p-12"
           >
             <div className="flex-1 bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center p-4 md:p-8 relative">
               <motion.img 
@@ -1104,13 +1104,13 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
                 <div className="flex gap-4">
                   <button 
                     onClick={() => setSelectedPoster(null)}
-                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95"
+                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95 text-black"
                   >
                     Back
                   </button>
                   <button 
                     onClick={() => setSelectedPoster((prev) => (prev! + 1) % posters.length)}
-                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95"
+                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95 text-black"
                   >
                     Next
                   </button>
@@ -1212,7 +1212,7 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col lg:flex-row gap-4 lg:gap-8 h-full min-h-[60vh]"
+            className="flex flex-col lg:flex-row gap-8 lg:gap-12 h-full min-h-[60vh] p-8 md:p-12"
           >
             <div className="flex-1 bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center p-4 md:p-8 relative">
               <motion.img 
@@ -1241,13 +1241,13 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
                 <div className="flex gap-4">
                   <button 
                     onClick={() => setSelectedProject(null)}
-                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95"
+                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95 text-black"
                   >
                     Back
                   </button>
                   <button 
                     onClick={() => setSelectedProject((prev) => (prev! + 1) % projects.length)}
-                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95"
+                    className="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest hover:bg-black/5 transition-all active:scale-95 text-black"
                   >
                     Next
                   </button>
