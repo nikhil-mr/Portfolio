@@ -2,22 +2,35 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useMotionValue, useTransform, MotionValue, useSpring, useVelocity, useAnimationFrame } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
+
+const CursorContext = React.createContext<{
+  cursorVariant: string;
+  setCursorVariant: (variant: string) => void;
+}>({
+  cursorVariant: "default",
+  setCursorVariant: () => {},
+});
+
+const useCursor = () => React.useContext(CursorContext);
 
 export default function Portfolio() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
+  const [cursorVariant, setCursorVariant] = useState("default");
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-purple-500 selection:text-white cursor-none [&_*]:cursor-none">
-      <Cursor />
-      <AnimatePresence mode="wait">
-        {!isIntroComplete ? (
-          <IntroAnimation key="intro" onComplete={() => setIsIntroComplete(true)} />
-        ) : (
-          <HomePage key="home" />
-        )}
-      </AnimatePresence>
-    </div>
+    <CursorContext.Provider value={{ cursorVariant, setCursorVariant }}>
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-purple-500 selection:text-white cursor-none [&_*]:cursor-none">
+        <Cursor />
+        <AnimatePresence mode="wait">
+          {!isIntroComplete ? (
+            <IntroAnimation key="intro" onComplete={() => setIsIntroComplete(true)} />
+          ) : (
+            <HomePage key="home" />
+          )}
+        </AnimatePresence>
+      </div>
+    </CursorContext.Provider>
   );
 }
 
@@ -425,6 +438,14 @@ const HomePage = () => {
     setTransitionData({ label, targetRef: ref, callback });
   };
 
+  useEffect(() => {
+    if (showPostersGrid || showProjectsGrid) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [showPostersGrid, showProjectsGrid]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -540,79 +561,94 @@ const HomePage = () => {
       {/* Stats / Philosophy Section */}
       <div 
         ref={statsRef}
-        className={`bg-white rounded-t-[80px] md:rounded-t-[120px] z-30 relative text-black ${
-          !showPostersGrid && !showProjectsGrid ? "h-[450vh]" : "min-h-screen"
-        }`}
+        className="bg-white rounded-t-[80px] md:rounded-t-[120px] z-30 relative text-black h-[450vh]"
       >
-        <div className={`${
-          !showPostersGrid && !showProjectsGrid ? "sticky top-0 h-screen" : ""
-        } flex flex-col md:flex-row justify-between items-start p-4 md:p-20 gap-12`}>
-        {showPostersGrid ? (
-          <FullPostersGrid onBack={() => setShowPostersGrid(false)} />
-        ) : showProjectsGrid ? (
-          <FullProjectsGrid onBack={() => setShowProjectsGrid(false)} />
-        ) : (
-          <>
-            <div className="flex flex-col gap-8 max-w-xl">
-              <motion.p 
-                style={{ opacity: textOpacity, y: textY }}
-                className="text-lg md:text-xl text-gray-700 leading-relaxed"
-              >
-                Every product I build starts with understanding user goals and translating them into intuitive, high-performance experiences. From concept to launch, I focus on meaningful results—boosting user engagement, retention, and overall business impact.
-              </motion.p>
-              <div className="flex flex-col gap-4 w-full">
-                <motion.div
-                  style={{ opacity: stat1Opacity, y: stat1Y }}
-                  className="flex flex-col gap-4"
-                >
-                  <div className="h-px w-full bg-black/20" />
-                  <div 
-                    className="flex flex-col cursor-pointer group"
-                    onClick={() => setActiveSection(activeSection === 'posters' ? 'text' : 'posters')}
-                  >
-                    <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">posters designed</span>
-                    <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">30+</span>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  style={{ opacity: stat2Opacity, y: stat2Y }}
-                  className="flex flex-col gap-4"
-                >
-                  <div className="h-px w-full bg-black/20" />
-                  <div 
-                    className="flex flex-col cursor-pointer group"
-                    onClick={() => setActiveSection(activeSection === 'projects' ? 'text' : 'projects')}
-                  >
-                    <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">project completed</span>
-                    <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">5+</span>
-                  </div>
-                </motion.div>
-
-              </div>
-            </div>
-            <motion.div 
-              style={{ opacity: rightOpacity, y: rightY }}
-              className="flex flex-col gap-8 max-w-2xl w-full"
+        <div className="sticky top-0 h-screen flex flex-col md:flex-row justify-between items-start p-4 md:p-20 gap-12">
+          <div className="flex flex-col gap-8 max-w-xl">
+            <motion.p 
+              style={{ opacity: textOpacity, y: textY }}
+              className="text-lg md:text-xl text-gray-700 leading-relaxed"
             >
-              <AnimatePresence mode="wait">
-                {activeSection === 'posters' && (
-                  <PosterGallery key="posters" onExpand={() => setShowPostersGrid(true)} scrollProgress={statsProgress} range={[0.2, 0.5]} />
-                )}
-                {activeSection === 'projects' && (
-                  <ProjectGallery key="projects" onExpand={() => setShowProjectsGrid(true)} scrollProgress={statsProgress} range={[0.55, 0.85]} />
-                )}
-              </AnimatePresence>
-            </motion.div>
-          </>
-        )}
+              Every product I build starts with understanding user goals and translating them into intuitive, high-performance experiences. From concept to launch, I focus on meaningful results—boosting user engagement, retention, and overall business impact.
+            </motion.p>
+            <div className="flex flex-col gap-4 w-full">
+              <motion.div
+                style={{ opacity: stat1Opacity, y: stat1Y }}
+                className="flex flex-col gap-4"
+              >
+                <div className="h-px w-full bg-black/20" />
+                <div 
+                  className="flex flex-col cursor-pointer group"
+                  onClick={() => setActiveSection(activeSection === 'posters' ? 'text' : 'posters')}
+                >
+                  <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">posters designed</span>
+                  <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">30+</span>
+                </div>
+              </motion.div>
+
+              <motion.div
+                style={{ opacity: stat2Opacity, y: stat2Y }}
+                className="flex flex-col gap-4"
+              >
+                <div className="h-px w-full bg-black/20" />
+                <div 
+                  className="flex flex-col cursor-pointer group"
+                  onClick={() => setActiveSection(activeSection === 'projects' ? 'text' : 'projects')}
+                >
+                  <span className="text-sm text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">project completed</span>
+                  <span className="text-6xl md:text-8xl font-bold group-hover:scale-105 transition-transform origin-left">5+</span>
+                </div>
+              </motion.div>
+
+            </div>
+          </div>
+          <motion.div 
+            style={{ opacity: rightOpacity, y: rightY }}
+            className="flex flex-col gap-8 max-w-2xl w-full"
+          >
+            <AnimatePresence mode="wait">
+              {activeSection === 'posters' && (
+                <PosterGallery key="posters" onExpand={() => setShowPostersGrid(true)} scrollProgress={statsProgress} range={[0.2, 0.5]} />
+              )}
+              {activeSection === 'projects' && (
+                <ProjectGallery key="projects" onExpand={() => setShowProjectsGrid(true)} scrollProgress={statsProgress} range={[0.55, 0.85]} />
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showPostersGrid && (
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] bg-white overflow-y-auto cursor-none [&_*]:cursor-none"
+          >
+            <FullPostersGrid onBack={() => setShowPostersGrid(false)} />
+          </motion.div>
+        )}
+        {showProjectsGrid && (
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] bg-white overflow-y-auto cursor-none [&_*]:cursor-none"
+          >
+            <FullProjectsGrid onBack={() => setShowProjectsGrid(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Crossing Strips Section */}
       <motion.div 
         ref={stripRef}
         style={{ y: stripY }}
+        animate={{ x: showPostersGrid || showProjectsGrid ? "100%" : "0%" }}
+        transition={{ duration: 0.5 }}
         className="relative w-full h-[30vh] -mt-32 -mb-[20vh] bg-white overflow-hidden flex items-center justify-center z-40"
       >
         <MarqueeStrip direction="left" className="rotate-6 z-10" />
@@ -678,6 +714,7 @@ const ProjectItem = ({
   range: [number, number]; 
   total: number; 
 }) => {
+  const { setCursorVariant } = useCursor();
   const step = (range[1] - range[0]) / total;
   const start = range[0] + index * step;
   
@@ -688,6 +725,8 @@ const ProjectItem = ({
     <motion.div
       style={{ opacity, y }}
       onClick={onExpand}
+      onMouseEnter={() => setCursorVariant("gallery")}
+      onMouseLeave={() => setCursorVariant("default")}
       className="w-full flex-shrink-0 block cursor-pointer bg-zinc-100 p-6 md:p-8 rounded-lg shadow-sm hover:bg-zinc-200 transition-colors group"
     >
       <h3 className="text-2xl md:text-4xl font-bold text-black uppercase mb-2 group-hover:text-purple-600 transition-colors">
@@ -788,8 +827,13 @@ const FlipLink = ({ children, onClick }: { children: string; onClick: () => void
 };
 
 const Cursor = () => {
+  const { cursorVariant } = useCursor();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  
+  const springConfig = { damping: 25, stiffness: 700 };
+  const cursorX = useSpring(mouseX, springConfig);
+  const cursorY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
@@ -800,14 +844,43 @@ const Cursor = () => {
     return () => window.removeEventListener("mousemove", moveCursor);
   }, []);
 
+  const variants = {
+    default: {
+      scale: 1,
+    },
+    gallery: {
+      scale: 1.3,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10
+      }
+    }
+  };
+
   return (
     <motion.div
-      className="fixed top-0 left-0 pointer-events-none z-[100] mix-blend-difference"
-      style={{ x: mouseX, y: mouseY }}
+      className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
+      style={{ x: cursorX, y: cursorY }}
     >
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="white" style={{ shapeRendering: "crispEdges" }}>
-        <path d="M0 0L0 24L6 18L14 18L0 0Z" />
-      </svg>
+      <motion.div 
+        variants={variants}
+        animate={cursorVariant}
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          shapeRendering="crispEdges"
+        >
+          <path
+            d="M0 0 L12 0 L12 5 L5 5 L5 6 L6 6 L6 7 L7 7 L7 8 L8 8 L8 9 L9 9 L9 10 L10 10 L10 11 L11 11 L11 12 L12 12 L12 13 L13 13 L13 14 L14 14 L14 15 L15 15 L15 16 L16 16 L16 17 L17 17 L17 18 L14 18 L14 17 L13 17 L13 16 L12 16 L12 15 L11 15 L11 14 L10 14 L10 13 L9 13 L9 12 L8 12 L8 11 L7 11 L7 10 L6 10 L6 9 L5 9 L5 8 L4 8 L4 7 L3 7 L3 6 L2 6 L2 5 L0 5 Z"
+            fill="white"
+          />
+        </svg>
+      </motion.div>
     </motion.div>
   );
 };
@@ -834,6 +907,7 @@ const Char = ({ char, progress, range }: { char: string; progress: MotionValue<n
 };
 
 const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => void; scrollProgress: MotionValue<number>; range: [number, number] }) => {
+  const { setCursorVariant } = useCursor();
   const posters = [
     "/posters/1.png",
     "/posters/2.png",
@@ -868,7 +942,13 @@ const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => vo
       {/* Mobile: Horizontal movement */}
       <motion.div style={{ x: move }} className="flex md:hidden gap-4 px-4 py-0 w-max">
         {[...posters, ...posters].map((src, i) => (
-          <div key={i} onClick={handlePosterClick} className="w-[45vw] flex-shrink-0 block cursor-pointer">
+          <div 
+            key={i} 
+            onClick={handlePosterClick} 
+            onMouseEnter={() => setCursorVariant("gallery")}
+            onMouseLeave={() => setCursorVariant("default")}
+            className="w-[45vw] flex-shrink-0 block cursor-pointer"
+          >
             <img src={src} alt={`Poster ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
           </div>
         ))}
@@ -877,7 +957,13 @@ const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => vo
       {/* Desktop: Vertical movement */}
       <motion.div style={{ y: move }} className="hidden md:grid grid-cols-1 gap-4 px-4 py-0">
         {[...posters, ...posters].map((src, i) => (
-          <div key={i} onClick={handlePosterClick} className="w-full flex-shrink-0 block cursor-pointer">
+          <div 
+            key={i} 
+            onClick={handlePosterClick} 
+            onMouseEnter={() => setCursorVariant("gallery")}
+            onMouseLeave={() => setCursorVariant("default")}
+            className="w-full flex-shrink-0 block cursor-pointer"
+          >
             <img src={src} alt={`Poster ${i}`} className="w-full h-auto object-cover rounded-lg shadow-sm" />
           </div>
         ))}
@@ -887,6 +973,7 @@ const PosterGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => vo
 };
 
 const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
+  const { setCursorVariant } = useCursor();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPoster, setSelectedPoster] = useState<number | null>(null);
   const posters = Array.from({ length: 14 }, (_, i) => `/posters/${i + 1}.png`);
@@ -894,13 +981,6 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, []);
 
   const handleDownload = () => {
@@ -914,7 +994,7 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-4 md:p-20">
+    <div className="w-full min-h-screen bg-white flex flex-col">
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
@@ -996,22 +1076,24 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
             key="grid"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-8 p-8 md:p-12"
           >
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-bold uppercase tracking-wide">All Posters</h2>
               <button 
                 onClick={onBack}
-                className="px-6 py-2 border border-black/20 rounded-full hover:bg-black hover:text-white transition-colors uppercase tracking-widest text-sm"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                Close
+                <X className="w-8 h-8 text-black" />
               </button>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {posters.map((src, i) => (
                 <motion.div
                   key={i}
                   onClick={() => setSelectedPoster(i)}
+                  onMouseEnter={() => setCursorVariant("gallery")}
+                  onMouseLeave={() => setCursorVariant("default")}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
@@ -1033,6 +1115,7 @@ const FullPostersGrid = ({ onBack }: { onBack: () => void }) => {
 };
 
 const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
+  const { setCursorVariant } = useCursor();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const projects = [
@@ -1048,15 +1131,8 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
-
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto flex flex-col p-4 md:p-20">
+    <div className="w-full min-h-screen bg-white flex flex-col">
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
@@ -1137,22 +1213,24 @@ const FullProjectsGrid = ({ onBack }: { onBack: () => void }) => {
             key="grid"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-8 p-8 md:p-12"
           >
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-bold uppercase tracking-wide">All Projects</h2>
               <button 
                 onClick={onBack}
-                className="px-6 py-2 border border-black/20 rounded-full hover:bg-black hover:text-white transition-colors uppercase tracking-widest text-sm"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                Close
+                <X className="w-8 h-8 text-black" />
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {projects.map((src, i) => (
                 <motion.div
                   key={i}
                   onClick={() => setSelectedProject(i)}
+                  onMouseEnter={() => setCursorVariant("gallery")}
+                  onMouseLeave={() => setCursorVariant("default")}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
