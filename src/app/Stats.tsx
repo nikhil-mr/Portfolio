@@ -56,9 +56,8 @@ const MetricCard = ({ value, label }: { value: string; label: string }) => {
 
 export default function Stats() {
   const metrics = [
-    { value: "4+", label: "Years Experience" },
-    { value: "30+", label: "Projects Delivered" },
-    { value: "100%", label: "Client Satisfaction" },
+    { value: "5+", label: "Projects Created" },
+    { value: "30+", label: "Posters Designed" },
     { value: "24/7", label: "Support" },
   ];
 

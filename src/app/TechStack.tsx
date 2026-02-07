@@ -24,12 +24,9 @@ const TechCategory = ({ title, tags, index }: { title: string; tags: string[]; i
 
 export default function TechStack() {
   const categories = [
-    { title: "Frontend", tags: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Three.js"] },
-    { title: "Backend", tags: ["Node.js", "Express", "PostgreSQL", "Firebase", "Supabase"] },
-    { title: "Design", tags: ["Figma", "Adobe XD", "Photoshop", "Illustrator", "Blender"] },
-    { title: "Tools", tags: ["Git", "Docker", "Webpack", "Vite", "VS Code"] },
-    { title: "Testing", tags: ["Jest", "Cypress", "React Testing Library"] },
-    { title: "Architecture", tags: ["REST API", "GraphQL", "Microservices", "Serverless"] },
+    { title: "Frontend", tags: ["React", "TypeScript", "Tailwind CSS"] },
+    { title: "Design", tags: ["Figma"] },
+    { title: "Tools", tags: ["Git","VS Code"] },
   ];
 
   return (

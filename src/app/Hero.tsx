@@ -23,7 +23,7 @@ export default function Hero() {
           className="text-[10vw] leading-[0.85] font-bold uppercase tracking-tighter text-white mix-blend-difference"
         >
           UI & UX Designer.<br />
-          <span className="text-gray-500">Full-Stack.</span>
+          <span className="text-gray-500">Frontend.</span>
         </motion.h1>
       </div>
 
