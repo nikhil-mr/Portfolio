@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useMotionValue, useTransform, MotionValue, useSpring, useVelocity, useAnimationFrame } from 'framer-motion';
-import { ChevronRight, X } from 'lucide-react';
+import { ChevronRight, X, Mail, Phone } from 'lucide-react';
+import AboutPage from './AboutPage';
 
 const CursorContext = React.createContext<{
   cursorVariant: string;
@@ -17,6 +18,7 @@ const useCursor = () => React.useContext(CursorContext);
 export default function Portfolio() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
   const [cursorVariant, setCursorVariant] = useState("default");
+  const [showAbout, setShowAbout] = useState(false);
 
   return (
     <CursorContext.Provider value={{ cursorVariant, setCursorVariant }}>
@@ -25,8 +27,10 @@ export default function Portfolio() {
         <AnimatePresence mode="wait">
           {!isIntroComplete ? (
             <IntroAnimation key="intro" onComplete={() => setIsIntroComplete(true)} />
+          ) : showAbout ? (
+            <AboutPage key="about" onBack={() => setShowAbout(false)} />
           ) : (
-            <HomePage key="home" />
+            <HomePage key="home" onOpenAbout={() => setShowAbout(true)} />
           )}
         </AnimatePresence>
       </div>
@@ -290,24 +294,24 @@ const MarqueeStrip = ({ direction = "left", className }: { direction?: "left" | 
   });
 
   return (
-    <div className={`absolute w-[120%] bg-black py-6 flex items-center overflow-hidden ${className}`}>
+    <div className={`absolute w-[120%] bg-purple-500 py-6 flex items-center overflow-hidden ${className}`}>
       <motion.div
         className="flex whitespace-nowrap gap-12"
         style={{ x }}
       >
         {[...Array(10)].map((_, i) => (
-          <span key={i} className="text-white text-2xl md:text-4xl font-bold uppercase tracking-widest flex items-center gap-4">
+          <span key={i} className="text-black text-2xl md:text-4xl font-bold uppercase tracking-widest flex items-center gap-4">
             DEVELOPER 
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
-              <StarIcon className="text-purple-500 w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
+              <StarIcon className="text-white w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
             </motion.div>
             DESIGNER 
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
-              <StarIcon className="text-purple-500 w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
+              <StarIcon className="text-white w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
             </motion.div>
             GAMER 
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
-              <StarIcon className="text-purple-500 w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
+              <StarIcon className="text-white w-8 h-8 md:w-12 md:h-12" strokeWidth={3} />
             </motion.div>
           </span>
         ))}
@@ -325,7 +329,42 @@ const StarIcon = ({ className, strokeWidth = 1.5 }: { className?: string; stroke
   </svg>
 );
 
-const HomePage = () => {
+const MagneticButton = ({ children, href, onClick, style, className }: { children: React.ReactNode; href?: string; onClick?: () => void; style?: any; className?: string }) => {
+  const ref = useRef<HTMLElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const { height, width, left, top } = ref.current!.getBoundingClientRect();
+    const x = clientX - (left + width / 2);
+    const y = clientY - (top + height / 2);
+    setPosition({ x: x * 0.3, y: y * 0.3 });
+  };
+
+  const handleMouseLeave = () => {
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const Component = href ? motion.a : motion.button;
+
+  return (
+    <Component
+      ref={ref as any}
+      href={href}
+      onClick={onClick}
+      style={style}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+      className={className || "relative flex items-center gap-4 px-8 py-4 md:px-12 md:py-6 bg-white text-black rounded-full text-lg md:text-xl font-bold uppercase tracking-widest hover:bg-purple-500 hover:text-white transition-colors duration-300"}
+    >
+      {children}
+    </Component>
+  );
+};
+
+const HomePage = ({ onOpenAbout }: { onOpenAbout: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -372,6 +411,9 @@ const HomePage = () => {
 
   const stat3Opacity = useTransform(statsProgress, [0.85, 0.9], [0, 1]);
   const stat3Y = useTransform(statsProgress, [0.85, 0.9], [50, 0]);
+
+  const statsBg = useTransform(statsProgress, [0.8, 1], ["#FFFFFF", "#000000"]);
+  const statsTextColor = useTransform(statsProgress, [0.8, 1], ["#000000", "#FFFFFF"]);
 
   const rightOpacity = useTransform(statsProgress, [0.05, 0.2], [0, 1]);
   const rightY = useTransform(statsProgress, [0.05, 0.2, 1], [20, 0, -50]);
@@ -547,27 +589,27 @@ const HomePage = () => {
             progress={aboutProgress}
             range={[0.5, 0.7]}
           />
-          <motion.button
+          <MagneticButton
+            onClick={onOpenAbout}
             style={{ opacity: useTransform(aboutProgress, [0.7, 0.8], [0, 1]) }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
             className="px-8 py-4 border border-white/20 bg-white/5 backdrop-blur-sm rounded-full text-white uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300"
           >
             About Me
-          </motion.button>
+          </MagneticButton>
         </div>
       </motion.div>
 
       {/* Stats / Philosophy Section */}
-      <div 
+      <motion.div 
         ref={statsRef}
-        className="bg-white rounded-t-[80px] md:rounded-t-[120px] z-30 relative text-black h-[450vh]"
+        style={{ backgroundColor: statsBg, color: statsTextColor }}
+        className="rounded-t-[80px] md:rounded-t-[120px] z-30 relative h-[450vh]"
       >
         <div className="sticky top-0 h-screen flex flex-col md:flex-row justify-between items-start p-4 md:p-20 gap-12">
           <div className="flex flex-col gap-8 max-w-xl">
             <motion.p 
               style={{ opacity: textOpacity, y: textY }}
-              className="text-lg md:text-xl text-gray-700 leading-relaxed"
+              className="text-lg md:text-xl leading-relaxed"
             >
               Every product I build starts with understanding user goals and translating them into intuitive, high-performance experiences. From concept to launch, I focus on meaningful results—boosting user engagement, retention, and overall business impact.
             </motion.p>
@@ -616,7 +658,7 @@ const HomePage = () => {
             </AnimatePresence>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {showPostersGrid && (
@@ -649,50 +691,51 @@ const HomePage = () => {
         style={{ y: stripY }}
         animate={{ x: showPostersGrid || showProjectsGrid ? "100%" : "0%" }}
         transition={{ duration: 0.5 }}
-        className="relative w-full h-[30vh] -mt-32 -mb-[20vh] bg-white overflow-hidden flex items-center justify-center z-40"
+        className="relative w-full h-[30vh] -mt-32 -mb-[20vh] overflow-hidden flex items-center justify-center z-40"
       >
         <MarqueeStrip direction="left" className="rotate-6 z-10" />
         <MarqueeStrip direction="right" className="-rotate-6 z-20" />
       </motion.div>
 
       {/* Contact Section */}
-      <div ref={contactRef} className="h-screen flex flex-col relative z-30">
-        <div className="flex-1 bg-white flex items-center justify-center">
-          <ConnectText />
+      <div ref={contactRef} className="relative min-h-screen flex flex-col justify-between pt-20 pb-10 px-6 md:px-12 bg-black overflow-hidden z-30">
+        <div className="relative z-10 w-full max-w-6xl flex flex-row justify-start gap-8 mb-20 px-4 mt-auto">
+          <div className="flex flex-col gap-6">
+            <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-2">Links</h3>
+            <div className="flex flex-col gap-2">
+              {['Home', 'About', 'Works', 'Contact'].map((item) => (
+                <button 
+                  key={item}
+                  onClick={() => handleNavigate(item)}
+                  className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors text-left w-fit"
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-2">Socials</h3>
+            <div className="flex flex-col gap-2">
+              <a href="mailto:12nikhilreji@email.com" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">Email</a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">LinkedIn</a>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">GitHub</a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">whatsapp</a>
+            </div>
+          </div>
         </div>
 
-        <div className="h-[25vh] bg-black flex flex-col items-center justify-center px-4 md:px-20 gap-8 text-white">
-          <div className="flex flex-wrap items-center justify-around w-full max-w-4xl mx-auto gap-4">
-            <a href="mailto:12nikhilreji@email.com" className="group">
-              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">Email</span>
-            </a>
-            <a href="tel:+916238984317" className="group">
-              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">Phone</span>
-            </a>
-            <a href="https://www.github.com/nikhil-mr" className="group">
-              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">GitHub</span>
-            </a>
-            <a href="https://www.linkedin.com/in/nikhil-mani-reji-582130280?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" className="group">
-              <span className="text-lg md:text-xl font-light uppercase tracking-widest text-white group-hover:text-purple-400 transition-colors">LinkedIn</span>
-            </a>
-          </div>
-
-          <div className="w-full overflow-hidden">
-            <motion.div 
-              className="flex items-center gap-8 whitespace-nowrap"
-              animate={{ x: "-50%" }}
-              transition={{ duration: 20, ease: "linear", repeat: Infinity }}
-            >
-              {[...Array(4)].map((_, i) => (
-                <React.Fragment key={i}>
-                  <span className="text-base md:text-lg uppercase tracking-widest text-gray-400">Driven by Passion, Built with Code</span>
-                  <StarIcon />
-                  <span className="text-base md:text-lg uppercase tracking-widest text-gray-400">Custom Web Experiences</span>
-                  <StarIcon />
-                </React.Fragment>
-              ))}
-            </motion.div>
-          </div>
+        <div className="relative z-10">
+          <motion.h1 
+            initial={{ y: "100%" }}
+            whileInView={{ y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[25vw] leading-[0.8] font-bold text-center text-transparent stroke-text hover:text-purple-500 transition-colors duration-500 select-none"
+            style={{ WebkitTextStroke: "2px white" }}
+          >
+            NIKHIL
+          </motion.h1>
         </div>
       </div>
     </motion.div>
