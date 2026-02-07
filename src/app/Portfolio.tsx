@@ -898,7 +898,7 @@ const Cursor = () => {
     gallery: {
       scale: 1.3,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 400,
         damping: 10
       }
