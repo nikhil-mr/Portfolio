@@ -592,7 +592,6 @@ const HomePage = ({ onOpenAbout }: { onOpenAbout: () => void }) => {
           <MagneticButton
             onClick={onOpenAbout}
             style={{ opacity: useTransform(aboutProgress, [0.7, 0.8], [0, 1]) }}
-            className="px-8 py-4 border border-white/20 bg-white/5 backdrop-blur-sm rounded-full text-white uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300"
           >
             About Me
           </MagneticButton>
@@ -704,13 +703,13 @@ const HomePage = ({ onOpenAbout }: { onOpenAbout: () => void }) => {
             <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-2">Links</h3>
             <div className="flex flex-col gap-2">
               {['Home', 'About', 'Works', 'Contact'].map((item) => (
-                <button 
+                <FlipLink 
                   key={item}
                   onClick={() => handleNavigate(item)}
                   className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors text-left w-fit"
                 >
                   {item}
-                </button>
+                </FlipLink>
               ))}
             </div>
           </div>
@@ -718,10 +717,10 @@ const HomePage = ({ onOpenAbout }: { onOpenAbout: () => void }) => {
           <div className="flex flex-col gap-6">
             <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-2">Socials</h3>
             <div className="flex flex-col gap-2">
-              <a href="mailto:12nikhilreji@email.com" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">Email</a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">LinkedIn</a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">GitHub</a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">whatsapp</a>
+              <FlipLink href="mailto:12nikhilreji@email.com" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">Email</FlipLink>
+              <FlipLink href="https://linkedin.com" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">LinkedIn</FlipLink>
+              <FlipLink href="https://github.com" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">GitHub</FlipLink>
+              <FlipLink href="https://instagram.com" className="text-lg font-thin text-white uppercase tracking-widest hover:text-purple-500 transition-colors w-fit">whatsapp</FlipLink>
             </div>
           </div>
         </div>
@@ -815,16 +814,21 @@ const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => v
   );
 };
 
-const FlipLink = ({ children, onClick }: { children: string; onClick: () => void }) => {
+const FlipLink = ({ children, href, onClick, className }: { children: string; href?: string; onClick?: () => void; className?: string }) => {
   const DURATION = 0.25;
   const STAGGER = 0.025;
 
+  const Component = href ? motion.a : motion.button;
+
   return (
-    <motion.button
+    <Component
       initial="initial"
       whileHover="hovered"
+      href={href}
       onClick={onClick}
-      className="relative block overflow-hidden whitespace-nowrap text-2xl font-bold uppercase md:text-4xl text-right"
+      target={href ? "_blank" : undefined}
+      rel={href ? "noopener noreferrer" : undefined}
+      className={`relative block overflow-hidden whitespace-nowrap ${className || "text-2xl font-bold uppercase md:text-4xl text-right"}`}
       style={{ lineHeight: 0.9 }}
     >
       <div>
@@ -865,7 +869,7 @@ const FlipLink = ({ children, onClick }: { children: string; onClick: () => void
           </motion.span>
         ))}
       </div>
-    </motion.button>
+    </Component>
   );
 };
 
