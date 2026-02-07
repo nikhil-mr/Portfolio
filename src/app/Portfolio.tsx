@@ -332,6 +332,7 @@ const StarIcon = ({ className, strokeWidth = 1.5 }: { className?: string; stroke
 const MagneticButton = ({ children, href, onClick, style, className }: { children: React.ReactNode; href?: string; onClick?: () => void; style?: any; className?: string }) => {
   const ref = useRef<HTMLElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const { setCursorVariant } = useCursor();
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
@@ -339,10 +340,12 @@ const MagneticButton = ({ children, href, onClick, style, className }: { childre
     const x = clientX - (left + width / 2);
     const y = clientY - (top + height / 2);
     setPosition({ x: x * 0.3, y: y * 0.3 });
+    setCursorVariant("gallery");
   };
 
   const handleMouseLeave = () => {
     setPosition({ x: 0, y: 0 });
+    setCursorVariant("default");
   };
 
   const Component = href ? motion.a : motion.button;
@@ -817,6 +820,7 @@ const ProjectGallery = ({ onExpand, scrollProgress, range }: { onExpand: () => v
 const FlipLink = ({ children, href, onClick, className }: { children: string; href?: string; onClick?: () => void; className?: string }) => {
   const DURATION = 0.25;
   const STAGGER = 0.025;
+  const { setCursorVariant } = useCursor();
 
   const Component = href ? motion.a : motion.button;
 
@@ -826,6 +830,8 @@ const FlipLink = ({ children, href, onClick, className }: { children: string; hr
       whileHover="hovered"
       href={href}
       onClick={onClick}
+      onMouseEnter={() => setCursorVariant("gallery")}
+      onMouseLeave={() => setCursorVariant("default")}
       target={href ? "_blank" : undefined}
       rel={href ? "noopener noreferrer" : undefined}
       className={`relative block overflow-hidden whitespace-nowrap ${className || "text-2xl font-bold uppercase md:text-4xl text-right"}`}
@@ -877,42 +883,50 @@ const Cursor = () => {
   const { cursorVariant } = useCursor();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
-  const springConfig = { damping: 25, stiffness: 700 };
-  const cursorX = useSpring(mouseX, springConfig);
-  const cursorY = useSpring(mouseY, springConfig);
+  const [isClicked, setIsClicked] = useState(false);
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
     };
+    const mouseDown = () => setIsClicked(true);
+    const mouseUp = () => setIsClicked(false);
+
     window.addEventListener("mousemove", moveCursor);
-    return () => window.removeEventListener("mousemove", moveCursor);
-  }, []);
+    window.addEventListener("mousedown", mouseDown);
+    window.addEventListener("mouseup", mouseUp);
+    return () => {
+      window.removeEventListener("mousemove", moveCursor);
+      window.removeEventListener("mousedown", mouseDown);
+      window.removeEventListener("mouseup", mouseUp);
+    };
+  }, [mouseX, mouseY]);
 
   const variants = {
     default: {
       scale: 1,
+      rotate: 0,
     },
     gallery: {
       scale: 1.3,
-      transition: {
-        type: "spring" as const,
-        stiffness: 400,
-        damping: 10
-      }
+      rotate: 0,
+    },
+    clicked: {
+      scale: 0.8,
+      rotate: -15,
     }
   };
 
   return (
     <motion.div
       className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
-      style={{ x: cursorX, y: cursorY }}
+      style={{ x: mouseX, y: mouseY }}
     >
       <motion.div 
         variants={variants}
-        animate={cursorVariant}
+        animate={isClicked ? "clicked" : cursorVariant}
+        transition={{ type: "spring", stiffness: 500, damping: 28 }}
       >
         <svg
           width="24"
@@ -920,10 +934,9 @@ const Cursor = () => {
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          shapeRendering="crispEdges"
         >
           <path
-            d="M0 0 L12 0 L12 5 L5 5 L5 6 L6 6 L6 7 L7 7 L7 8 L8 8 L8 9 L9 9 L9 10 L10 10 L10 11 L11 11 L11 12 L12 12 L12 13 L13 13 L13 14 L14 14 L14 15 L15 15 L15 16 L16 16 L16 17 L17 17 L17 18 L14 18 L14 17 L13 17 L13 16 L12 16 L12 15 L11 15 L11 14 L10 14 L10 13 L9 13 L9 12 L8 12 L8 11 L7 11 L7 10 L6 10 L6 9 L5 9 L5 8 L4 8 L4 7 L3 7 L3 6 L2 6 L2 5 L0 5 Z"
+            d="M0 0 L6 18 L18 6 Z"
             fill="white"
           />
         </svg>
