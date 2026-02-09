@@ -24,7 +24,7 @@ const TechCategory = ({ title, tags, index }: { title: string; tags: string[]; i
 
 export default function TechStack() {
   const categories = [
-    { title: "Frontend", tags: ["React", "TypeScript", "Tailwind CSS"] },
+    { title: "Frontend", tags: ["Html", "CSS", "JavaScript","React", "TypeScript", "Tailwind CSS"] },
     { title: "Design", tags: ["Figma"] },
     { title: "Tools", tags: ["Git","VS Code"] },
   ];
